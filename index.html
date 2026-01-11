@@ -98,8 +98,9 @@
     <input
       type="text"
       id="searchInput"
-      placeholder="بارکۆدەکە سکان بکە یان کۆدی بابەتەکە داخڵ بکە"
-      autofocus
+      placeholder="باركۆدەکە سکان بکە"
+      inputmode="none"
+      readonly
     >
 
     <div class="buttons">
@@ -115,6 +116,15 @@
 <script>
   const STOCK_API_URL = 'https://script.google.com/macros/s/AKfycbxxqC7m5P5TICqquBmPm_hgzp-DITBGaHkVcn3A54X_adyRyEcHZPWjJfrQi-ezoEauYg/exec';
   let html5QrCode;
+
+  function prepareScannerInput() {
+    const input = document.getElementById("searchInput");
+    input.removeAttribute("readonly");
+    input.focus();
+    setTimeout(() => {
+      input.setAttribute("readonly", true);
+    }, 50);
+  }
 
   async function fetchStock(code) {
     try {
@@ -167,12 +177,10 @@
       resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد لهذه المادة</p>";
     }
 
-    // تفريغ الحقل تلقائياً
     input.value = "";
-    input.focus();
+    prepareScannerInput();
   }
 
-  /* ===== دعم أجهزة الباركود (Enter) ===== */
   document.getElementById("searchInput").addEventListener("keydown", e => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -184,7 +192,6 @@
     searchStockOnly(document.getElementById("searchInput").value.trim());
   });
 
-  /* ===== الكاميرا (نفس كودك الأصلي) ===== */
   function stopCamera() {
     if (html5QrCode) {
       html5QrCode.stop().then(() => {
@@ -224,8 +231,9 @@
   }
 
   document.getElementById("scanButton").addEventListener("click", startBarcodeScanner);
+
+  window.onload = prepareScannerInput;
 </script>
 
 </body>
 </html>
-

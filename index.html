@@ -42,7 +42,6 @@ button{
   background:#007bff;
   color:#fff;
 }
-button:active{transform:scale(.98)}
 .price{
   text-align:center;
   font-size:26px;
@@ -61,7 +60,6 @@ table{
 th,td{
   border:1px solid #ccc;
   padding:8px;
-  font-size:16px;
 }
 th{background:#eee}
 .loading,.error{text-align:center;font-weight:bold}
@@ -100,7 +98,7 @@ const input = document.getElementById("searchInput");
 const result = document.getElementById("result");
 let scanner;
 
-/* جاهز للسكانر بدون كيبورد */
+/* جاهز للسكانر */
 window.onload = () => {
   input.focus({preventScroll:true});
 };
@@ -147,7 +145,7 @@ async function searchStock(code){
     result.innerHTML=html;
     resetInput();
 
-  }catch(e){
+  }catch{
     result.innerHTML="<p class='error'>⚠️ خطأ في الاتصال</p>";
     resetInput();
   }
@@ -156,10 +154,10 @@ async function searchStock(code){
 function resetInput(){
   input.value="";
   input.blur();
-  setTimeout(()=>input.focus({preventScroll:true}),200);
+  setTimeout(()=>input.focus({preventScroll:true}),150);
 }
 
-/* سكانر محسّن */
+/* 📷 كاميرا مع كتابة الرمز في الحقل */
 async function startScanner(){
   if(scanner){
     await scanner.stop();
@@ -168,12 +166,13 @@ async function startScanner(){
 
   scanner=new Html5Qrcode("cameraContainer");
   const cams=await Html5Qrcode.getCameras();
-  const cam=cams.find(c=>c.label.toLowerCase().includes("back"))||cams[0];
+  const cam=cams.find(c=>c.label.toLowerCase().includes("back")) || cams[0];
 
   scanner.start(
     cam.id,
-    {fps:12,qrbox:{width:250,height:250}},
+    {fps:12, qrbox:{width:250,height:250}},
     async txt=>{
+      input.value = txt;        // ✅ كتابة الرمز بالحقل
       await scanner.stop();
       searchStock(txt);
     }

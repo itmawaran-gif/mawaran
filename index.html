@@ -7,18 +7,17 @@
 
 <style>
 body{
-  font-family: Tahoma, Arial;
+  font-family:Tahoma,Arial;
   background:#f0f2f5;
   margin:0;
   padding:10px;
 }
 .container{
-  max-width:100%;
   background:#fff;
-  padding:15px;
   border-radius:10px;
+  padding:15px;
 }
-h1,h2,h3{ text-align:center; margin:5px 0; }
+h1,h2,h3{ text-align:center; margin:6px 0; }
 
 .search-box{
   display:flex;
@@ -34,18 +33,22 @@ input{
 }
 .buttons{
   display:flex;
-  gap:10px;
+  gap:8px;
 }
 button{
   flex:1;
   padding:14px;
-  font-size:18px;
+  font-size:17px;
   border:none;
   border-radius:8px;
   background:#007bff;
   color:#fff;
 }
 button:active{ background:#0056b3; }
+
+.reset-btn{
+  background:#6c757d;
+}
 
 .price{
   text-align:center;
@@ -71,11 +74,8 @@ table{
 th,td{
   border:1px solid #ccc;
   padding:8px;
-  font-size:16px;
 }
 th{ background:#eee; }
-
-#error{ color:red; text-align:center; font-weight:bold; }
 
 #cameraContainer{
   margin-top:10px;
@@ -93,13 +93,12 @@ th{ background:#eee; }
   <h2>Store</h2>
 
   <div class="search-box">
-    <input id="searchInput" type="text"
-      placeholder="سكان الباركود"
-      autocomplete="off">
+    <input id="searchInput" type="text" placeholder="سكان الباركود" autocomplete="off">
 
     <div class="buttons">
       <button id="searchBtn">🔍 بحث</button>
       <button id="scanBtn">📷 كاميرا</button>
+      <button id="resetScannerBtn" class="reset-btn">🔄 إعادة تفعيل</button>
     </div>
   </div>
 
@@ -113,84 +112,76 @@ const STOCK_API_URL =
 
 const input = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
-let html5QrCode = null;
+let html5QrCode=null;
 
-/* ===== منع الكيبورد مع السماح للسكانر ===== */
+/* منع الكيبورد والسماح للسكانر */
 function focusWithoutKeyboard(){
-  input.setAttribute("readonly", true);
+  input.setAttribute("readonly",true);
   input.focus();
   setTimeout(()=>input.removeAttribute("readonly"),50);
 }
 
-/* ===== إعادة جاهزية للمسح التالي ===== */
+/* جاهزية للمسح التالي */
 function resetForNext(){
   input.value="";
   focusWithoutKeyboard();
 }
 
-/* ===== البحث ===== */
+/* البحث */
 async function fetchStock(code){
-  const res = await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
-  return await res.json();
+  const r=await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
+  return await r.json();
 }
-
 async function searchStock(code){
   if(!code) return;
   resultDiv.innerHTML="⏳ جارِ البحث...";
   try{
-    const data = await fetchStock(code);
-    if(!data || !data.items || !data.items.length){
-      resultDiv.innerHTML="<div id='error'>❌ لا يوجد رصيد</div>";
+    const d=await fetchStock(code);
+    if(!d || !d.items || !d.items.length){
+      resultDiv.innerHTML="❌ لا يوجد رصيد";
       resetForNext();
       return;
     }
-
     let total=0;
-    let html=`<h3>${data.name}</h3>
-      <div class="price">💵 ${data.price ?? "غير متوفر"} $</div>`;
-
-    data.items.forEach(i=> total+=Number(i.balance)||0);
-    html+=`<div class="total">📦 الكمية: ${total}</div>
+    let html=`<h3>${d.name}</h3>
+      <div class="price">💵 ${d.price ?? "غير متوفر"} $</div>`;
+    d.items.forEach(i=>total+=Number(i.balance)||0);
+    html+=`<div class="total">📦 ${total}</div>
       <table><tr><th>المستودع</th><th>الكمية</th></tr>`;
-
-    data.items.forEach(i=>{
+    d.items.forEach(i=>{
       html+=`<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
     });
     html+="</table>";
     resultDiv.innerHTML=html;
   }catch{
-    resultDiv.innerHTML="<div id='error'>❌ خطأ اتصال</div>";
+    resultDiv.innerHTML="❌ خطأ اتصال";
   }
   setTimeout(resetForNext,300);
 }
 
-/* ===== إدخال السكانر HID ===== */
+/* إدخال السكانر */
 input.addEventListener("keydown",e=>{
   if(e.key==="Enter"){
     e.preventDefault();
     searchStock(input.value.trim());
   }
 });
-
 document.getElementById("searchBtn").onclick=()=>{
-  input.blur(); // منع الكيبورد
+  input.blur();
   searchStock(input.value.trim());
 };
 
-/* ===== الكاميرا (إعادة تهيئة كاملة) ===== */
+/* الكاميرا */
 async function startCamera(){
-  const camBox=document.getElementById("cameraContainer");
-  camBox.innerHTML="";
-
+  const box=document.getElementById("cameraContainer");
+  box.innerHTML="";
   if(html5QrCode){
     try{ await html5QrCode.stop(); await html5QrCode.clear(); }catch{}
     html5QrCode=null;
   }
-
   html5QrCode=new Html5Qrcode("cameraContainer");
   const cams=await Html5Qrcode.getCameras();
   if(!cams.length){ alert("لا توجد كاميرا"); return; }
-
   html5QrCode.start(
     { facingMode:"environment" },
     { fps:10, qrbox:250 },
@@ -203,43 +194,13 @@ async function startCamera(){
 }
 document.getElementById("scanBtn").onclick=startCamera;
 
-/* ===== عند فتح الصفحة أو الرجوع من قفل الشاشة ===== */
+/* زر إعادة تفعيل السكانر */
+document.getElementById("resetScannerBtn").onclick=()=>{
+  location.reload(true);
+};
+
+/* عند فتح الصفحة */
 window.onload=resetForNext;
-document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden) setTimeout(resetForNext,300);
-});
-window.addEventListener("focus",()=>setTimeout(resetForNext,300));
 </script>
 </body>
 </html>
-<script>
-let wakeLock = null;
-
-async function enableWakeLock() {
-  try {
-    if ("wakeLock" in navigator) {
-      wakeLock = await navigator.wakeLock.request("screen");
-      console.log("✅ Wake Lock enabled");
-
-      wakeLock.addEventListener("release", () => {
-        console.log("🔓 Wake Lock released");
-      });
-    }
-  } catch (err) {
-    console.log("❌ Wake Lock failed:", err);
-  }
-}
-
-/* إعادة تفعيل بعد الرجوع */
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    enableWakeLock();
-  }
-});
-
-/* عند فتح الصفحة */
-window.addEventListener("load", () => {
-  enableWakeLock();
-});
-</script>
-

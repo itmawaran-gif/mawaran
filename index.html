@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بحث المخزون</title>
 
 <style>
@@ -10,79 +10,78 @@ body{
   font-family: Tahoma, Arial;
   background:#f0f2f5;
   margin:0;
-  padding:8px;
+  padding:10px;
 }
 .container{
   max-width:100%;
   background:#fff;
-  padding:10px;
+  padding:15px;
   border-radius:10px;
 }
-h1{font-size:20px;margin:4px 0;text-align:center}
-h2{font-size:16px;margin:0 0 6px;text-align:center}
-h3{font-size:16px;margin:6px 0;text-align:center}
+h1,h2,h3{ text-align:center; margin:5px 0; }
 
 .search-box{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:10px;
 }
 input{
-  padding:12px;
-  font-size:16px;
+  padding:14px;
+  font-size:18px;
   border-radius:8px;
   border:1px solid #ccc;
   text-align:center;
 }
 .buttons{
   display:flex;
-  gap:6px;
+  gap:10px;
 }
 button{
   flex:1;
-  padding:10px;
-  font-size:15px;
+  padding:14px;
+  font-size:18px;
   border:none;
   border-radius:8px;
   background:#007bff;
   color:#fff;
 }
+button:active{ background:#0056b3; }
 
 .price{
-  font-size:20px;
   text-align:center;
+  font-size:22px;
   color:#198754;
   font-weight:bold;
 }
 .total{
-  font-size:15px;
   text-align:center;
+  font-size:18px;
 }
 
 .result{
-  margin-top:6px;
+  margin-top:10px;
   background:#fafafa;
-  padding:6px;
+  padding:10px;
   border-radius:8px;
 }
-
 table{
   width:100%;
   border-collapse:collapse;
 }
 th,td{
   border:1px solid #ccc;
-  padding:6px;
-  font-size:14px;
+  padding:8px;
+  font-size:16px;
 }
-th{background:#eee}
+th{ background:#eee; }
 
-.loading,.error{
-  text-align:center;
-  font-weight:bold;
-  font-size:14px;
+#error{ color:red; text-align:center; font-weight:bold; }
+
+#cameraContainer{
+  margin-top:10px;
+  max-width:320px;
+  margin-inline:auto;
 }
-.error{color:red}
 </style>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -94,103 +93,122 @@ th{background:#eee}
   <h2>Store</h2>
 
   <div class="search-box">
-    <input id="searchInput" type="text" placeholder="سكان الباركود">
+    <input id="searchInput" type="text"
+      placeholder="سكان الباركود"
+      autocomplete="off">
 
     <div class="buttons">
-      <button id="searchButton">🔍 بحث</button>
-      <button id="scanButton">📷 كاميرا</button>
+      <button id="searchBtn">🔍 بحث</button>
+      <button id="scanBtn">📷 كاميرا</button>
     </div>
   </div>
 
   <div id="cameraContainer"></div>
-  <div class="result" id="result"></div>
+  <div id="result" class="result"></div>
 </div>
 
 <script>
-const API =
+const STOCK_API_URL =
 "https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
 
 const input = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
-let html5QrCode;
+let html5QrCode = null;
 
-/* 🔒 تركيز بدون كيبورد */
+/* ===== منع الكيبورد مع السماح للسكانر ===== */
 function focusWithoutKeyboard(){
   input.setAttribute("readonly", true);
   input.focus();
-  setTimeout(() => {
-    input.removeAttribute("readonly");
-  }, 50);
+  setTimeout(()=>input.removeAttribute("readonly"),50);
 }
 
-/* عند الفتح */
-window.onload = () => {
+/* ===== إعادة جاهزية للمسح التالي ===== */
+function resetForNext(){
+  input.value="";
   focusWithoutKeyboard();
-};
+}
 
+/* ===== البحث ===== */
 async function fetchStock(code){
-  const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
+  const res = await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
   return await res.json();
 }
 
-async function searchStockOnly(code){
+async function searchStock(code){
   if(!code) return;
+  resultDiv.innerHTML="⏳ جارِ البحث...";
+  try{
+    const data = await fetchStock(code);
+    if(!data || !data.items || !data.items.length){
+      resultDiv.innerHTML="<div id='error'>❌ لا يوجد رصيد</div>";
+      resetForNext();
+      return;
+    }
 
-  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
-  const data = await fetchStock(code);
+    let total=0;
+    let html=`<h3>${data.name}</h3>
+      <div class="price">💵 ${data.price ?? "غير متوفر"} $</div>`;
 
-  if(!data || !data.items.length){
-    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
-    resetForNext();
-    return;
+    data.items.forEach(i=> total+=Number(i.balance)||0);
+    html+=`<div class="total">📦 الكمية: ${total}</div>
+      <table><tr><th>المستودع</th><th>الكمية</th></tr>`;
+
+    data.items.forEach(i=>{
+      html+=`<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    });
+    html+="</table>";
+    resultDiv.innerHTML=html;
+  }catch{
+    resultDiv.innerHTML="<div id='error'>❌ خطأ اتصال</div>";
   }
-
-  let total = 0;
-  let html = `<h3>${data.name}</h3>`;
-  html += `<div class="price">💵 ${data.price ?? "-"} $</div>`;
-
-  data.items.forEach(i => total += Number(i.balance) || 0);
-  html += `<div class="total">📦 الكمية: ${total}</div>`;
-
-  html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
-  data.items.forEach(i=>{
-    html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
-  });
-  html += `</table>`;
-
-  resultDiv.innerHTML = html;
-  resetForNext();
+  setTimeout(resetForNext,300);
 }
 
-function resetForNext(){
-  input.value = "";
-  setTimeout(focusWithoutKeyboard, 30);
-}
-
-/* Munbyn يرسل Enter */
-input.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    searchStockOnly(input.value.trim());
+/* ===== إدخال السكانر HID ===== */
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    searchStock(input.value.trim());
   }
 });
 
-document.getElementById("searchButton").onclick = () =>
-  searchStockOnly(input.value.trim());
+document.getElementById("searchBtn").onclick=()=>{
+  input.blur(); // منع الكيبورد
+  searchStock(input.value.trim());
+};
 
-async function startBarcodeScanner(){
-  html5QrCode = new Html5Qrcode("cameraContainer");
-  const cams = await Html5Qrcode.getCameras();
+/* ===== الكاميرا (إعادة تهيئة كاملة) ===== */
+async function startCamera(){
+  const camBox=document.getElementById("cameraContainer");
+  camBox.innerHTML="";
+
+  if(html5QrCode){
+    try{ await html5QrCode.stop(); await html5QrCode.clear(); }catch{}
+    html5QrCode=null;
+  }
+
+  html5QrCode=new Html5Qrcode("cameraContainer");
+  const cams=await Html5Qrcode.getCameras();
+  if(!cams.length){ alert("لا توجد كاميرا"); return; }
+
   html5QrCode.start(
-    cams[0].id,
-    { fps:10, qrbox:220 },
-    txt=>{
-      html5QrCode.stop();
-      searchStockOnly(txt);
+    { facingMode:"environment" },
+    { fps:10, qrbox:250 },
+    async txt=>{
+      try{ await html5QrCode.stop(); await html5QrCode.clear(); }catch{}
+      html5QrCode=null;
+      searchStock(txt);
     }
   );
 }
+document.getElementById("scanBtn").onclick=startCamera;
 
-document.getElementById("scanButton").onclick = startBarcodeScanner;
+/* ===== عند فتح الصفحة أو الرجوع من قفل الشاشة ===== */
+window.onload=resetForNext;
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden) setTimeout(resetForNext,300);
+});
+window.addEventListener("focus",()=>setTimeout(resetForNext,300));
 </script>
 </body>
 </html>

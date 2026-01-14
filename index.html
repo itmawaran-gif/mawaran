@@ -212,3 +212,34 @@ window.addEventListener("focus",()=>setTimeout(resetForNext,300));
 </script>
 </body>
 </html>
+<script>
+let wakeLock = null;
+
+async function enableWakeLock() {
+  try {
+    if ("wakeLock" in navigator) {
+      wakeLock = await navigator.wakeLock.request("screen");
+      console.log("✅ Wake Lock enabled");
+
+      wakeLock.addEventListener("release", () => {
+        console.log("🔓 Wake Lock released");
+      });
+    }
+  } catch (err) {
+    console.log("❌ Wake Lock failed:", err);
+  }
+}
+
+/* إعادة تفعيل بعد الرجوع */
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    enableWakeLock();
+  }
+});
+
+/* عند فتح الصفحة */
+window.addEventListener("load", () => {
+  enableWakeLock();
+});
+</script>
+

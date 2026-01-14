@@ -77,12 +77,11 @@ th{background:#eee}
 
 <div class="search-box">
   <input id="searchInput"
-         inputmode="none"
          autocomplete="off"
          placeholder="سكان الباركود أو أدخل الرمز">
   <div class="buttons">
-    <button onclick="searchManual()">🔍 بحث</button>
-    <button onclick="startScanner()">📷 كاميرا</button>
+    <button id="searchButton">🔍 بحث</button>
+    <button id="scanButton">📷 كاميرا</button>
   </div>
 </div>
 
@@ -96,23 +95,18 @@ const API =
 
 const input = document.getElementById("searchInput");
 const result = document.getElementById("result");
-let scanner;
+let html5QrCode;
 
-/* جاهز للسكانر */
-window.onload = () => {
-  input.focus({preventScroll:true});
+/* البحث اليدوي */
+document.getElementById("searchButton").onclick = () => {
+  searchStock(input.value.trim());
 };
 
-input.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){
-    e.preventDefault();
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
     searchStock(input.value.trim());
   }
 });
-
-function searchManual(){
-  searchStock(input.value.trim());
-}
 
 async function searchStock(code){
   if(!code) return;
@@ -125,59 +119,45 @@ async function searchStock(code){
 
     if(!data || !data.items.length){
       result.innerHTML="<p class='error'>❌ لا يوجد رصيد</p>";
-      resetInput();
       return;
     }
 
-    let total=0;
-    let html=`<h3>${data.name}</h3>`;
-    html+=`<div class="price">💵 ${data.price ?? "-"} $</div>`;
+    let total = 0;
+    let html = `<h3>${data.name}</h3>`;
+    html += `<div class="price">💵 ${data.price ?? "-"} $</div>`;
 
-    data.items.forEach(i=> total+=Number(i.balance)||0);
-    html+=`<div class="total">📦 الكمية الكلية: ${total}</div>`;
+    data.items.forEach(i => total += Number(i.balance) || 0);
+    html += `<div class="total">📦 الكمية الكلية: ${total}</div>`;
 
-    html+=`<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
+    html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
     data.items.forEach(i=>{
-      html+=`<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+      html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
     });
-    html+=`</table>`;
+    html += `</table>`;
 
-    result.innerHTML=html;
-    resetInput();
+    result.innerHTML = html;
 
   }catch{
     result.innerHTML="<p class='error'>⚠️ خطأ في الاتصال</p>";
-    resetInput();
   }
 }
 
-function resetInput(){
-  input.value="";
-  input.blur();
-  setTimeout(()=>input.focus({preventScroll:true}),150);
-}
+/* 📷 الكاميرا – نفس الكود الذي كان يعمل */
+async function startBarcodeScanner(){
+  html5QrCode = new Html5Qrcode("cameraContainer");
+  const cams = await Html5Qrcode.getCameras();
 
-/* 📷 كاميرا مع كتابة الرمز في الحقل */
-async function startScanner(){
-  if(scanner){
-    await scanner.stop();
-    scanner.clear();
-  }
-
-  scanner=new Html5Qrcode("cameraContainer");
-  const cams=await Html5Qrcode.getCameras();
-  const cam=cams.find(c=>c.label.toLowerCase().includes("back")) || cams[0];
-
-  scanner.start(
-    cam.id,
-    {fps:12, qrbox:{width:250,height:250}},
-    async txt=>{
-      input.value = txt;        // ✅ كتابة الرمز بالحقل
-      await scanner.stop();
-      searchStock(txt);
+  html5QrCode.start(
+    cams[0].id,
+    { fps: 10, qrbox: 250 },
+    txt => {
+      html5QrCode.stop();
+      searchStock(txt);   // ✅ نفس السلوك القديم
     }
   );
 }
+
+document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
 </body>
 </html>

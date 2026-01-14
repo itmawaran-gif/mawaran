@@ -53,12 +53,10 @@ button{
   text-align:center;
   color:#198754;
   font-weight:bold;
-  margin:6px 0;
 }
 .total{
   font-size:15px;
   text-align:center;
-  margin-bottom:6px;
 }
 
 .result{
@@ -85,11 +83,6 @@ th{background:#eee}
   font-size:14px;
 }
 .error{color:red}
-
-#cameraContainer{
-  max-width:280px;
-  margin:6px auto 0;
-}
 </style>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -101,8 +94,7 @@ th{background:#eee}
   <h2>Store</h2>
 
   <div class="search-box">
-    <input id="searchInput" type="text"
-      placeholder="سكان الباركود">
+    <input id="searchInput" type="text" placeholder="سكان الباركود">
 
     <div class="buttons">
       <button id="searchButton">🔍 بحث</button>
@@ -122,9 +114,18 @@ const input = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
 let html5QrCode;
 
-/* جاهز للسكان مثل أول فتح */
-window.onload = () => {
+/* 🔒 تركيز بدون كيبورد */
+function focusWithoutKeyboard(){
+  input.setAttribute("readonly", true);
   input.focus();
+  setTimeout(() => {
+    input.removeAttribute("readonly");
+  }, 50);
+}
+
+/* عند الفتح */
+window.onload = () => {
+  focusWithoutKeyboard();
 };
 
 async function fetchStock(code){
@@ -136,12 +137,11 @@ async function searchStockOnly(code){
   if(!code) return;
 
   resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
-
   const data = await fetchStock(code);
 
   if(!data || !data.items.length){
     resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
-    resetForNextScan();
+    resetForNext();
     return;
   }
 
@@ -152,23 +152,19 @@ async function searchStockOnly(code){
   data.items.forEach(i => total += Number(i.balance) || 0);
   html += `<div class="total">📦 الكمية: ${total}</div>`;
 
-  html += `<table>
-    <tr><th>المستودع</th><th>الكمية</th></tr>`;
-
+  html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
   data.items.forEach(i=>{
     html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
   });
-
   html += `</table>`;
-  resultDiv.innerHTML = html;
 
-  resetForNextScan();
+  resultDiv.innerHTML = html;
+  resetForNext();
 }
 
-/* تجهيز للسكان التالي بدون كيبورد */
-function resetForNextScan(){
+function resetForNext(){
   input.value = "";
-  setTimeout(()=>input.focus(),50);
+  setTimeout(focusWithoutKeyboard, 30);
 }
 
 /* Munbyn يرسل Enter */
@@ -184,7 +180,6 @@ document.getElementById("searchButton").onclick = () =>
 async function startBarcodeScanner(){
   html5QrCode = new Html5Qrcode("cameraContainer");
   const cams = await Html5Qrcode.getCameras();
-
   html5QrCode.start(
     cams[0].id,
     { fps:10, qrbox:220 },

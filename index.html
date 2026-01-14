@@ -22,6 +22,18 @@
     h1, h2, h3 {
       text-align: center;
     }
+    .price {
+      text-align: center;
+      font-size: 26px;
+      color: #198754;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .total {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
     .search-box {
       display: flex;
       flex-direction: column;
@@ -95,11 +107,8 @@
   <h2>Store</h2>
 
   <div class="search-box">
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="باركۆدەکە سکان بکە یان کۆدی بابەتەکە داخڵ بکە"
-    >
+    <input id="searchInput" type="text"
+      placeholder="باركۆدەکە سکان بکە یان کۆدی بابەتەکە داخڵ بکە">
 
     <div class="buttons">
       <button id="searchButton">🔍 بحث</button>
@@ -112,128 +121,59 @@
 </div>
 
 <script>
-  const STOCK_API_URL = 'https://script.google.com/macros/s/AKfycbxxqC7m5P5TICqquBmPm_hgzp-DITBGaHkVcn3A54X_adyRyEcHZPWjJfrQi-ezoEauYg/exec';
-  let html5QrCode;
+const STOCK_API_URL = "https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
+let html5QrCode;
 
-  function focusForScanner() {
-    const input = document.getElementById("searchInput");
-    input.focus({ preventScroll: true });
+async function fetchStock(code) {
+  const res = await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
+  return await res.json();
+}
 
-    // منع ظهور الكيبورد عند التحميل فقط
-    setTimeout(() => {
-      input.blur();
-      input.focus({ preventScroll: true });
-    }, 100);
+async function searchStockOnly(code) {
+  if (!code) return;
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
+
+  const data = await fetchStock(code);
+
+  if (!data || !data.items.length) {
+    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
+    return;
   }
 
-  async function fetchStock(code) {
-    try {
-      const res = await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
-      return await res.json();
-    } catch (e) {
-      return null;
-    }
-  }
+  let total = 0;
+  let html = `<h3>${data.name}</h3>`;
+  html += `<div class="price">💰 السعر: ${data.price ?? "غير متوفر"}</div>`;
 
-  async function searchStockOnly(code) {
-    const resultDiv = document.getElementById("result");
-    const input = document.getElementById("searchInput");
+  data.items.forEach(i => total += Number(i.balance) || 0);
+  html += `<div class="total">📦 الكمية الكلية: ${total}</div>`;
 
-    if (!code) return;
+  html += `<table>
+    <tr><th>المستودع</th><th>الكمية</th></tr>`;
 
-    resultDiv.innerHTML = "<p class='loading'>⏳ گەڕان بەدوای مادەکەدا..</p>";
-
-    const stockData = await fetchStock(code);
-
-    if (stockData && stockData.length > 0) {
-      let total = 0;
-      const itemName = stockData[0].name || "اسم غير متوفر";
-
-      let html = `<h3>${itemName}</h3>`;
-      html += `<p style="text-align:center"><strong>كود المادة:</strong> ${code}</p>`;
-
-      html += `<table>
-        <tr>
-          <th>کۆگا</th>
-          <th>كمية</th>
-        </tr>`;
-
-      stockData.forEach(item => {
-        html += `<tr>
-          <td>${item.warehouse}</td>
-          <td>${item.balance}</td>
-        </tr>`;
-        total += Number(item.balance) || 0;
-      });
-
-      html += `<tr>
-        <th>کۆی گشتی</th>
-        <th>${total}</th>
-      </tr>`;
-      html += `</table>`;
-
-      resultDiv.innerHTML = html;
-    } else {
-      resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد لهذه المادة</p>";
-    }
-
-    input.value = "";
-    focusForScanner();
-  }
-
-  document.getElementById("searchInput").addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      searchStockOnly(e.target.value.trim());
-    }
+  data.items.forEach(i => {
+    html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
   });
 
-  document.getElementById("searchButton").addEventListener("click", () => {
-    searchStockOnly(document.getElementById("searchInput").value.trim());
+  html += `</table>`;
+  resultDiv.innerHTML = html;
+}
+
+document.getElementById("searchInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") searchStockOnly(e.target.value.trim());
+});
+document.getElementById("searchButton").onclick = () =>
+  searchStockOnly(searchInput.value.trim());
+
+async function startBarcodeScanner() {
+  html5QrCode = new Html5Qrcode("cameraContainer");
+  const cams = await Html5Qrcode.getCameras();
+  html5QrCode.start(cams[0].id, { fps: 10, qrbox: 250 }, txt => {
+    html5QrCode.stop();
+    searchStockOnly(txt);
   });
-
-  function stopCamera() {
-    if (html5QrCode) {
-      html5QrCode.stop().then(() => {
-        document.getElementById("cameraContainer").innerHTML = "";
-      });
-    }
-  }
-
-  async function startBarcodeScanner() {
-    const cameraContainer = document.getElementById("cameraContainer");
-    cameraContainer.innerHTML = "";
-
-    html5QrCode = new Html5Qrcode("cameraContainer");
-
-    try {
-      const devices = await Html5Qrcode.getCameras();
-      if (!devices.length) {
-        cameraContainer.innerHTML = "<p class='error'>لا توجد كاميرا</p>";
-        return;
-      }
-
-      const backCamera =
-        devices.find(d => d.label.toLowerCase().includes("back")) || devices[0];
-
-      html5QrCode.start(
-        backCamera.id,
-        { fps: 10, qrbox: 250 },
-        decodedText => {
-          stopCamera();
-          searchStockOnly(decodedText);
-        },
-        () => {}
-      );
-    } catch (err) {
-      cameraContainer.innerHTML = "<p class='error'>تعذر تشغيل الكاميرا</p>";
-    }
-  }
-
-  document.getElementById("scanButton").addEventListener("click", startBarcodeScanner);
-
-  window.onload = focusForScanner;
+}
+document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
-
 </body>
 </html>

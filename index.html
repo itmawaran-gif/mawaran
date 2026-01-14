@@ -1,179 +1,184 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>بحث المخزون</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>بحث المخزون</title>
 
-  <style>
-    body {
-      font-family: Tahoma, Arial;
-      background: #f0f2f5;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    h1, h2, h3 {
-      text-align: center;
-    }
-    .price {
-      text-align: center;
-      font-size: 26px;
-      color: #198754;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .total {
-      text-align: center;
-      font-size: 20px;
-      margin-bottom: 15px;
-    }
-    .search-box {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    input {
-      padding: 15px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-    button {
-      padding: 14px 25px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      background: #007bff;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    #cameraContainer {
-      margin-top: 20px;
-      max-width: 400px;
-      margin-inline: auto;
-    }
-    .result {
-      margin-top: 20px;
-      background: #fafafa;
-      padding: 15px;
-      border-radius: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background: #eee;
-    }
-    .loading {
-      text-align: center;
-      font-weight: bold;
-    }
-    .error {
-      color: red;
-      font-weight: bold;
-      text-align: center;
-    }
-  </style>
+<style>
+body{
+  font-family: Tahoma, Arial;
+  background:#f0f2f5;
+  padding:10px;
+}
+.container{
+  max-width:100%;
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,.1);
+}
+h1,h2,h3{text-align:center;margin:5px 0;}
+.search-box{margin-bottom:15px;}
+input{
+  width:100%;
+  padding:15px;
+  font-size:18px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  text-align:center;
+}
+.buttons{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+button{
+  flex:1;
+  padding:14px;
+  font-size:18px;
+  border:none;
+  border-radius:8px;
+  background:#007bff;
+  color:#fff;
+}
+button:active{transform:scale(.98)}
+.price{
+  text-align:center;
+  font-size:26px;
+  color:#198754;
+  font-weight:bold;
+}
+.total{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:10px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  font-size:16px;
+}
+th{background:#eee}
+.loading,.error{text-align:center;font-weight:bold}
+.error{color:red}
+#cameraContainer{margin-top:15px}
+</style>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
 <div class="container">
-  <h1>MAWARAN co</h1>
-  <h2>Store</h2>
+<h1>MAWARAN co</h1>
+<h2>Store</h2>
 
-  <div class="search-box">
-    <input id="searchInput" type="text"
-      placeholder="باركۆدەکە سکان بکە یان کۆدی بابەتەکە داخڵ بکە">
-
-    <div class="buttons">
-      <button id="searchButton">🔍 بحث</button>
-      <button id="scanButton">📷 كاميرا</button>
-    </div>
+<div class="search-box">
+  <input id="searchInput"
+         inputmode="none"
+         autocomplete="off"
+         placeholder="سكان الباركود أو أدخل الرمز">
+  <div class="buttons">
+    <button onclick="searchManual()">🔍 بحث</button>
+    <button onclick="startScanner()">📷 كاميرا</button>
   </div>
+</div>
 
-  <div id="cameraContainer"></div>
-  <div class="result" id="result"></div>
+<div id="cameraContainer"></div>
+<div id="result"></div>
 </div>
 
 <script>
-const STOCK_API_URL = "https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
-let html5QrCode;
+const API =
+"https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
 
-async function fetchStock(code) {
-  const res = await fetch(`${STOCK_API_URL}?code=${encodeURIComponent(code)}`);
-  return await res.json();
+const input = document.getElementById("searchInput");
+const result = document.getElementById("result");
+let scanner;
+
+/* جاهز للسكانر بدون كيبورد */
+window.onload = () => {
+  input.focus({preventScroll:true});
+};
+
+input.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    searchStock(input.value.trim());
+  }
+});
+
+function searchManual(){
+  searchStock(input.value.trim());
 }
 
-async function searchStockOnly(code) {
-  if (!code) return;
-  const resultDiv = document.getElementById("result");
-  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
+async function searchStock(code){
+  if(!code) return;
 
-  const data = await fetchStock(code);
+  result.innerHTML="<p class='loading'>⏳ جارِ البحث...</p>";
 
-  if (!data || !data.items.length) {
-    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
-    return;
+  try{
+    const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
+    const data = await res.json();
+
+    if(!data || !data.items.length){
+      result.innerHTML="<p class='error'>❌ لا يوجد رصيد</p>";
+      resetInput();
+      return;
+    }
+
+    let total=0;
+    let html=`<h3>${data.name}</h3>`;
+    html+=`<div class="price">💵 ${data.price ?? "-"} $</div>`;
+
+    data.items.forEach(i=> total+=Number(i.balance)||0);
+    html+=`<div class="total">📦 الكمية الكلية: ${total}</div>`;
+
+    html+=`<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
+    data.items.forEach(i=>{
+      html+=`<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    });
+    html+=`</table>`;
+
+    result.innerHTML=html;
+    resetInput();
+
+  }catch(e){
+    result.innerHTML="<p class='error'>⚠️ خطأ في الاتصال</p>";
+    resetInput();
+  }
+}
+
+function resetInput(){
+  input.value="";
+  input.blur();
+  setTimeout(()=>input.focus({preventScroll:true}),200);
+}
+
+/* سكانر محسّن */
+async function startScanner(){
+  if(scanner){
+    await scanner.stop();
+    scanner.clear();
   }
 
-  let total = 0;
-  let html = `<h3>${data.name}</h3>`;
-  html += `<div class="price">💰 السعر: ${data.price ?? "غير متوفر"}</div>`;
+  scanner=new Html5Qrcode("cameraContainer");
+  const cams=await Html5Qrcode.getCameras();
+  const cam=cams.find(c=>c.label.toLowerCase().includes("back"))||cams[0];
 
-  data.items.forEach(i => total += Number(i.balance) || 0);
-  html += `<div class="total">📦 الكمية الكلية: ${total}</div>`;
-
-  html += `<table>
-    <tr><th>المستودع</th><th>الكمية</th></tr>`;
-
-  data.items.forEach(i => {
-    html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
-  });
-
-  html += `</table>`;
-  resultDiv.innerHTML = html;
+  scanner.start(
+    cam.id,
+    {fps:12,qrbox:{width:250,height:250}},
+    async txt=>{
+      await scanner.stop();
+      searchStock(txt);
+    }
+  );
 }
-
-document.getElementById("searchInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") searchStockOnly(e.target.value.trim());
-});
-document.getElementById("searchButton").onclick = () =>
-  searchStockOnly(searchInput.value.trim());
-
-async function startBarcodeScanner() {
-  html5QrCode = new Html5Qrcode("cameraContainer");
-  const cams = await Html5Qrcode.getCameras();
-  html5QrCode.start(cams[0].id, { fps: 10, qrbox: 250 }, txt => {
-    html5QrCode.stop();
-    searchStockOnly(txt);
-  });
-}
-document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
 </body>
 </html>

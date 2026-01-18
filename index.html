@@ -23,7 +23,7 @@ body{
 h2{text-align:center;}
 label{
   font-size:14px;
-  margin-top:10px;
+  margin-top:12px;
   display:block;
 }
 .required::after{
@@ -34,7 +34,7 @@ label{
 input,select,textarea,button{
   width:100%;
   padding:12px;
-  margin-top:5px;
+  margin-top:6px;
   font-size:15px;
   border-radius:6px;
   border:1px solid #ccc;
@@ -55,8 +55,16 @@ button:disabled{background:#aaa;}
   font-size:14px;
   text-align:center;
 }
-.loading{text-align:center;color:#d00;margin-top:10px;}
-.preview img{max-width:100%;border-radius:8px;margin-top:10px;}
+.loading{
+  text-align:center;
+  color:#d00;
+  margin-top:10px;
+}
+.preview img{
+  max-width:100%;
+  border-radius:8px;
+  margin-top:10px;
+}
 </style>
 </head>
 
@@ -103,6 +111,7 @@ button:disabled{background:#aaa;}
   <label class="required">رقم الهاتف</label>
   <input id="phone" type="tel" inputmode="numeric">
 
+  <!-- ✅ الفئة (تظهر الآن بشكل مؤكد) -->
   <label class="required">الفئة</label>
   <select id="category">
     <option value="">اختر</option>
@@ -154,7 +163,7 @@ button:disabled{background:#aaa;}
 </div>
 
 <script>
-const SCRIPT_URL = "ضع_رابط_السكربت_هنا";
+const SCRIPT_URL = "ضع_رابط_كوكل_سكربت_هنا";
 let imageBase64 = "";
 
 /* تسجيل المندوب */
@@ -163,34 +172,34 @@ function saveRep(){
     alert("اسم المندوب والمدينة إلزامية");
     return;
   }
-  localStorage.setItem("repName",repInput.value.trim());
-  localStorage.setItem("city",cityInput.value.trim());
+  localStorage.setItem("repName", repInput.value.trim());
+  localStorage.setItem("city", cityInput.value.trim());
   showForm();
 }
 
 function showForm(){
-  loginBox.style.display="none";
-  formBox.style.display="block";
-  repShow.textContent=localStorage.getItem("repName");
-  cityShow.textContent=localStorage.getItem("city");
+  loginBox.style.display = "none";
+  formBox.style.display = "block";
+  repShow.textContent = localStorage.getItem("repName");
+  cityShow.textContent = localStorage.getItem("city");
 }
 
-/* الصورة */
-imageInput.addEventListener("change",()=>{
-  const file=imageInput.files[0];
+/* معالجة الصورة */
+imageInput.addEventListener("change", ()=>{
+  const file = imageInput.files[0];
   if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    imageBase64=e.target.result;
-    preview.innerHTML=`<img src="${imageBase64}">`;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    imageBase64 = e.target.result;
+    preview.innerHTML = `<img src="${imageBase64}">`;
   };
   reader.readAsDataURL(file);
 });
 
-/* إرسال */
+/* إرسال البيانات */
 function sendData(){
 
-  const required=[
+  const required = [
     useOil, tradeName, ownerName, address,
     phone, category, note, rating, visitDays
   ];
@@ -207,38 +216,45 @@ function sendData(){
     return;
   }
 
-  sendBtn.disabled=true;
-  loading.textContent="جاري الإرسال...";
+  sendBtn.disabled = true;
+  loading.textContent = "جاري الإرسال...";
 
   navigator.geolocation.getCurrentPosition(pos=>{
-    const fd=new FormData();
-    fd.append("rep",localStorage.getItem("repName"));
-    fd.append("city",localStorage.getItem("city"));
-    fd.append("useOil",useOil.value);
-    fd.append("trade",tradeName.value);
-    fd.append("owner",ownerName.value);
-    fd.append("address",address.value);
-    fd.append("phone",phone.value);
-    fd.append("category",category.value);
-    fd.append("note",note.value);
-    fd.append("rating",rating.value);
-    fd.append("visitDays",visitDays.value);
-    fd.append("oilType",oilType.value);
-    fd.append("oilGrade",oilGrade.value);
-    fd.append("distance",distance.value);
-    fd.append("price",price.value);
-    fd.append("lat",pos.coords.latitude);
-    fd.append("lng",pos.coords.longitude);
-    fd.append("imageBase64",imageBase64);
+    const fd = new FormData();
+    fd.append("rep", localStorage.getItem("repName"));
+    fd.append("city", localStorage.getItem("city"));
+    fd.append("useOil", useOil.value);
+    fd.append("trade", tradeName.value);
+    fd.append("owner", ownerName.value);
+    fd.append("address", address.value);
+    fd.append("phone", phone.value);
+    fd.append("category", category.value);
+    fd.append("note", note.value);
+    fd.append("rating", rating.value);
+    fd.append("visitDays", visitDays.value);
+    fd.append("oilType", oilType.value);
+    fd.append("oilGrade", oilGrade.value);
+    fd.append("distance", distance.value);
+    fd.append("price", price.value);
+    fd.append("lat", pos.coords.latitude);
+    fd.append("lng", pos.coords.longitude);
+    fd.append("imageBase64", imageBase64);
 
-    fetch(SCRIPT_URL,{method:"POST",body:fd})
-      .then(()=>{alert("تم الإرسال بنجاح");location.reload();})
-      .catch(()=>{alert("حدث خطأ");sendBtn.disabled=false;});
+    fetch(SCRIPT_URL,{method:"POST", body:fd})
+      .then(()=>{
+        alert("تم الإرسال بنجاح");
+        location.reload();
+      })
+      .catch(()=>{
+        alert("حدث خطأ أثناء الإرسال");
+        sendBtn.disabled=false;
+        loading.textContent="";
+      });
   });
 }
 
 /* دخول تلقائي */
-if(localStorage.getItem("repName")&&localStorage.getItem("city")){
+if(localStorage.getItem("repName") && localStorage.getItem("city")){
   showForm();
 }
 </script>

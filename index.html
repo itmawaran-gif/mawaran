@@ -1,197 +1,254 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>بحث المخزون</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAWARAN CO</title>
 
 <style>
 body{
   font-family: Tahoma, Arial;
-  background:#f0f2f5;
+  background:#f2f4f7;
   margin:0;
-  padding:8px;
+  padding:15px;
 }
 .container{
-  max-width:100%;
+  max-width:420px;
+  margin:auto;
   background:#fff;
-  padding:10px;
-  border-radius:10px;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
 }
-h1{font-size:20px;margin:4px 0;text-align:center}
-h2{font-size:16px;margin:0 0 6px;text-align:center}
-h3{font-size:16px;margin:6px 0;text-align:center}
-
-.search-box{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+h2{text-align:center;}
+label{
+  font-size:14px;
+  margin-top:10px;
+  display:block;
 }
-input{
+.req{color:red;font-weight:bold;}
+input,select,textarea,button{
+  width:100%;
   padding:12px;
-  font-size:16px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  text-align:center;
-}
-.buttons{
-  display:flex;
-  gap:6px;
-}
-button{
-  flex:1;
-  padding:10px;
+  margin-top:5px;
   font-size:15px;
-  border:none;
-  border-radius:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+textarea{resize:none;}
+button{
   background:#007bff;
   color:#fff;
+  border:none;
+  margin-top:15px;
 }
-
-.price{
-  font-size:20px;
-  text-align:center;
-  color:#198754;
-  font-weight:bold;
-}
-.total{
-  font-size:15px;
-  text-align:center;
-}
-
-.result{
-  margin-top:6px;
-  background:#fafafa;
-  padding:6px;
+button:disabled{background:#aaa;}
+.info{
+  background:#eef3ff;
+  padding:10px;
   border-radius:8px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  border:1px solid #ccc;
-  padding:6px;
+  margin-bottom:10px;
   font-size:14px;
-}
-th{background:#eee}
-
-.loading,.error{
   text-align:center;
-  font-weight:bold;
-  font-size:14px;
 }
-.error{color:red}
+.loading{text-align:center;color:#d00;margin-top:10px;}
+.preview img{max-width:100%;border-radius:8px;margin-top:10px;}
 </style>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
-<div class="container">
-  <h1>MAWARAN co</h1>
-  <h2>Store</h2>
 
-  <div class="search-box">
-    <input id="searchInput" type="text" placeholder="سكان الباركود">
+<!-- تسجيل المندوب -->
+<div class="container" id="loginBox">
+  <h2>تسجيل المندوب</h2>
 
-    <div class="buttons">
-      <button id="searchButton">🔍 بحث</button>
-      <button id="scanButton">📷 كاميرا</button>
-    </div>
+  <label>اسم المندوب <span class="req">*</span></label>
+  <input id="repInput">
+
+  <label>المدينة <span class="req">*</span></label>
+  <input id="cityInput">
+
+  <button onclick="saveRep()">تسجيل</button>
+</div>
+
+<!-- الفورم -->
+<div class="container" id="formBox" style="display:none;">
+
+  <div class="info">
+    👤 <b id="repShow"></b> | 📍 <b id="cityShow"></b>
   </div>
 
-  <div id="cameraContainer"></div>
-  <div class="result" id="result"></div>
+  <h2>MAWARAN CO</h2>
+
+  <label>هل يستخدم الزيت؟ <span class="req">*</span></label>
+  <select id="useOil">
+    <option value="">اختر</option>
+    <option value="نعم">نعم</option>
+    <option value="لا">لا</option>
+  </select>
+
+  <label>الفئة <span class="req">*</span></label>
+  <select id="category">
+    <option value="">اختر الفئة</option>
+  </select>
+
+  <label>الاسم التجاري <span class="req">*</span></label>
+  <input id="trade">
+
+  <label>اسم المالك <span class="req">*</span></label>
+  <input id="owner">
+
+  <label>العنوان <span class="req">*</span></label>
+  <input id="address">
+
+  <label>رقم الهاتف <span class="req">*</span></label>
+  <input id="phone" type="tel">
+
+  <label>ملاحظات <span class="req">*</span></label>
+  <textarea id="note"></textarea>
+
+  <label>التقييم <span class="req">*</span></label>
+  <select id="rating">
+    <option value="">اختر</option>
+    <option value="1">⭐</option>
+    <option value="2">⭐⭐</option>
+    <option value="3">⭐⭐⭐</option>
+    <option value="4">⭐⭐⭐⭐</option>
+    <option value="5">⭐⭐⭐⭐⭐</option>
+  </select>
+
+  <label>أيام الزيارة <span class="req">*</span></label>
+  <input id="visitDays" type="number">
+
+  <!-- غير إلزامية -->
+  <label>نوع الزيت</label>
+  <input id="oilType">
+
+  <label>درجة الزيت</label>
+  <input id="oilGrade">
+
+  <label>المسافة المقطوعة</label>
+  <select id="distance">
+    <option value="">اختياري</option>
+    <option value="3 كم">3 كم</option>
+    <option value="5 كم">5 كم</option>
+    <option value="10 كم">10 كم</option>
+    <option value="15 كم">15 كم</option>
+  </select>
+
+  <label>سعر اللتر</label>
+  <input id="price" type="number">
+
+  <label>الصورة <span class="req">*</span></label>
+  <input id="imageInput" type="file" accept="image/*" capture="environment">
+  <div class="preview" id="preview"></div>
+
+  <button id="sendBtn" onclick="sendData()">إرسال</button>
+  <div class="loading" id="loading"></div>
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKH7ayK_oYC1TROqFOyChIBQoktELaXAHEcTlqEpjhVLOAIELVRb9tWPpo3PJUyzba/exec";
+let imageBase64 = "";
 
-const input = document.getElementById("searchInput");
-const resultDiv = document.getElementById("result");
-let html5QrCode;
+/* تحميل الفئات */
+fetch(SCRIPT_URL + "?action=categories")
+  .then(r=>r.json())
+  .then(data=>{
+    data.forEach(c=>{
+      const op=document.createElement("option");
+      op.value=c;
+      op.textContent=c;
+      category.appendChild(op);
+    });
+  });
 
-/* 🔒 تركيز بدون كيبورد */
-function focusWithoutKeyboard(){
-  input.setAttribute("readonly", true);
-  input.focus();
-  setTimeout(() => {
-    input.removeAttribute("readonly");
-  }, 50);
+/* تسجيل المندوب */
+function saveRep(){
+  if(!repInput.value.trim() || !cityInput.value.trim()){
+    alert("الاسم والمدينة إلزامية");
+    return;
+  }
+  localStorage.setItem("repName",repInput.value.trim());
+  localStorage.setItem("city",cityInput.value.trim());
+  showForm();
 }
 
-/* عند الفتح */
-window.onload = () => {
-  focusWithoutKeyboard();
-};
-
-async function fetchStock(code){
-  const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
-  return await res.json();
+function showForm(){
+  loginBox.style.display="none";
+  formBox.style.display="block";
+  repShow.textContent=localStorage.getItem("repName");
+  cityShow.textContent=localStorage.getItem("city");
 }
 
-async function searchStockOnly(code){
-  if(!code) return;
+/* معالجة الصورة */
+imageInput.addEventListener("change",()=>{
+  const file=imageInput.files[0];
+  if(!file) return;
 
-  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
-  const data = await fetchStock(code);
+  const reader=new FileReader();
+  reader.onload=e=>{
+    imageBase64=e.target.result;
+    preview.innerHTML=`<img src="${imageBase64}">`;
+  };
+  reader.readAsDataURL(file);
+});
 
-  if(!data || !data.items.length){
-    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
-    resetForNext();
+/* إرسال */
+function sendData(){
+
+  const required=[
+    useOil, category, trade, owner, address,
+    phone, note, rating, visitDays
+  ];
+
+  for(let f of required){
+    if(!f.value.trim()){
+      alert("يرجى تعبئة جميع الحقول الإلزامية (*)");
+      return;
+    }
+  }
+
+  if(!imageBase64){
+    alert("الصورة إلزامية");
     return;
   }
 
-  let total = 0;
-  let html = `<h3>${data.name}</h3>`;
-  html += `<div class="price">💵 ${data.price ?? "-"} $</div>`;
+  sendBtn.disabled=true;
+  loading.textContent="جاري الإرسال...";
 
-  data.items.forEach(i => total += Number(i.balance) || 0);
-  html += `<div class="total">📦 الكمية: ${total}</div>`;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const fd=new FormData();
+    fd.append("rep",localStorage.getItem("repName"));
+    fd.append("city",localStorage.getItem("city"));
+    fd.append("useOil",useOil.value);
+    fd.append("category",category.value);
+    fd.append("trade",trade.value);
+    fd.append("owner",owner.value);
+    fd.append("address",address.value);
+    fd.append("phone",phone.value);
+    fd.append("note",note.value);
+    fd.append("rating",rating.value);
+    fd.append("visitDays",visitDays.value);
+    fd.append("oilType",oilType.value);
+    fd.append("oilGrade",oilGrade.value);
+    fd.append("distance",distance.value);
+    fd.append("price",price.value);
+    fd.append("lat",pos.coords.latitude);
+    fd.append("lng",pos.coords.longitude);
+    fd.append("imageBase64",imageBase64);
 
-  html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
-  data.items.forEach(i=>{
-    html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    fetch(SCRIPT_URL,{method:"POST",body:fd})
+      .then(()=>{alert("تم الإرسال بنجاح");location.reload();})
+      .catch(()=>{alert("خطأ بالإرسال");sendBtn.disabled=false;});
   });
-  html += `</table>`;
-
-  resultDiv.innerHTML = html;
-  resetForNext();
 }
 
-function resetForNext(){
-  input.value = "";
-  setTimeout(focusWithoutKeyboard, 30);
+/* دخول تلقائي */
+if(localStorage.getItem("repName")&&localStorage.getItem("city")){
+  showForm();
 }
-
-/* Munbyn يرسل Enter */
-input.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    searchStockOnly(input.value.trim());
-  }
-});
-
-document.getElementById("searchButton").onclick = () =>
-  searchStockOnly(input.value.trim());
-
-async function startBarcodeScanner(){
-  html5QrCode = new Html5Qrcode("cameraContainer");
-  const cams = await Html5Qrcode.getCameras();
-  html5QrCode.start(
-    cams[0].id,
-    { fps:10, qrbox:220 },
-    txt=>{
-      html5QrCode.stop();
-      searchStockOnly(txt);
-    }
-  );
-}
-
-document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
+
 </body>
 </html>
-

@@ -1,224 +1,196 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAWARAN CO</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>بحث المخزون</title>
 
 <style>
 body{
   font-family: Tahoma, Arial;
-  background:#f2f4f7;
+  background:#f0f2f5;
   margin:0;
-  padding:15px;
+  padding:8px;
 }
 .container{
-  max-width:420px;
-  margin:auto;
+  max-width:100%;
   background:#fff;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,.12);
+  padding:10px;
+  border-radius:10px;
 }
-h2{text-align:center;margin-bottom:10px;}
-input,select,textarea,button{
-  width:100%;
+h1{font-size:20px;margin:4px 0;text-align:center}
+h2{font-size:16px;margin:0 0 6px;text-align:center}
+h3{font-size:16px;margin:6px 0;text-align:center}
+
+.search-box{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+input{
   padding:12px;
-  margin-top:10px;
-  font-size:15px;
-  border-radius:6px;
+  font-size:16px;
+  border-radius:8px;
   border:1px solid #ccc;
+  text-align:center;
 }
-textarea{resize:none;}
+.buttons{
+  display:flex;
+  gap:6px;
+}
 button{
+  flex:1;
+  padding:10px;
+  font-size:15px;
+  border:none;
+  border-radius:8px;
   background:#007bff;
   color:#fff;
-  border:none;
 }
-button:disabled{background:#aaa;}
-.info{
-  background:#eef3ff;
-  padding:10px;
+
+.price{
+  font-size:20px;
+  text-align:center;
+  color:#198754;
+  font-weight:bold;
+}
+.total{
+  font-size:15px;
+  text-align:center;
+}
+
+.result{
+  margin-top:6px;
+  background:#fafafa;
+  padding:6px;
   border-radius:8px;
-  margin-bottom:10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
   font-size:14px;
+}
+th{background:#eee}
+
+.loading,.error{
   text-align:center;
+  font-weight:bold;
+  font-size:14px;
 }
-.loading{
-  text-align:center;
-  margin-top:10px;
-  color:#d00;
-}
-.preview{
-  margin-top:10px;
-  text-align:center;
-}
-.preview img{
-  max-width:100%;
-  border-radius:8px;
-}
+.error{color:red}
 </style>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
+<div class="container">
+  <h1>MAWARAN co</h1>
+  <h2>Store</h2>
 
-<!-- تسجيل المندوب -->
-<div class="container" id="loginBox">
-  <h2>تسجيل المندوب</h2>
-  <input id="repInput" placeholder="اسم المندوب الثلاثي" required>
-  <input id="cityInput" placeholder="المدينة" required>
-  <button onclick="saveRep()">تسجيل</button>
-</div>
+  <div class="search-box">
+    <input id="searchInput" type="text" placeholder="سكان الباركود">
 
-<!-- الفورم -->
-<div class="container" id="formBox" style="display:none;">
-
-  <div class="info">
-    👤 <b id="repShow"></b> | 📍 <b id="cityShow"></b>
+    <div class="buttons">
+      <button id="searchButton">🔍 بحث</button>
+      <button id="scanButton">📷 كاميرا</button>
+    </div>
   </div>
 
-  <h2>MAWARAN CO</h2>
-
-  <!-- هل يستخدم زيت (في البداية) -->
-  <select id="useOil" required>
-    <option value="">هل يستخدم زيت؟</option>
-    <option value="نعم">نعم</option>
-    <option value="لا">لا</option>
-  </select>
-
-  <input id="trade" placeholder="الاسم التجاري" required>
-  <input id="owner" placeholder="اسم المالك" required>
-  <input id="address" placeholder="العنوان" required>
-  <input id="phone" type="tel" placeholder="رقم الهاتف" required>
-
-  <textarea id="note" placeholder="ملاحظات" required></textarea>
-
-  <select id="rating" required>
-    <option value="">اختر التقييم</option>
-    <option value="1">⭐</option>
-    <option value="2">⭐⭐</option>
-    <option value="3">⭐⭐⭐</option>
-    <option value="4">⭐⭐⭐⭐</option>
-    <option value="5">⭐⭐⭐⭐⭐</option>
-  </select>
-
-  <input id="visitDays" type="number" placeholder="أيام الزيارة" required>
-
-  <input id="oilType" placeholder="نوع الزيت" required>
-  <input id="oilGrade" placeholder="درجة الزيت" required>
-
-  <select id="distance" required>
-    <option value="">المسافة المقطوعة</option>
-    <option value="3 كم">3 كم</option>
-    <option value="5 كم">5 كم</option>
-    <option value="10 كم">10 كم</option>
-    <option value="15 كم">15 كم</option>
-  </select>
-
-  <input id="price" type="number" placeholder="سعر اللتر" required>
-
-  <!-- صورة (إلزامية) -->
-  <input id="imageInput" type="file" accept="image/*" capture="environment" required>
-  <div class="preview" id="preview"></div>
-
-  <button id="sendBtn" onclick="sendData()">إرسال</button>
-  <div class="loading" id="loading"></div>
+  <div id="cameraContainer"></div>
+  <div class="result" id="result"></div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKH7ayK_oYC1TROqFOyChIBQoktELaXAHEcTlqEpjhVLOAIELVRb9tWPpo3PJUyzba/exec";
-let imageBase64 = "";
+const API =
+"https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
 
-/* تسجيل المندوب */
-function saveRep(){
-  if(!repInput.value.trim() || !cityInput.value.trim()){
-    alert("جميع الحقول إلزامية");
+const input = document.getElementById("searchInput");
+const resultDiv = document.getElementById("result");
+let html5QrCode;
+
+/* 🔒 تركيز بدون كيبورد */
+function focusWithoutKeyboard(){
+  input.setAttribute("readonly", true);
+  input.focus();
+  setTimeout(() => {
+    input.removeAttribute("readonly");
+  }, 50);
+}
+
+/* عند الفتح */
+window.onload = () => {
+  focusWithoutKeyboard();
+};
+
+async function fetchStock(code){
+  const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
+  return await res.json();
+}
+
+async function searchStockOnly(code){
+  if(!code) return;
+
+  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
+  const data = await fetchStock(code);
+
+  if(!data || !data.items.length){
+    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
+    resetForNext();
     return;
   }
-  localStorage.setItem("repName", repInput.value.trim());
-  localStorage.setItem("city", cityInput.value.trim());
-  showForm();
+
+  let total = 0;
+  let html = `<h3>${data.name}</h3>`;
+  html += `<div class="price">💵 ${data.price ?? "-"} $</div>`;
+
+  data.items.forEach(i => total += Number(i.balance) || 0);
+  html += `<div class="total">📦 الكمية: ${total}</div>`;
+
+  html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
+  data.items.forEach(i=>{
+    html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+  });
+  html += `</table>`;
+
+  resultDiv.innerHTML = html;
+  resetForNext();
 }
 
-/* عرض الفورم */
-function showForm(){
-  loginBox.style.display="none";
-  formBox.style.display="block";
-  repShow.textContent = localStorage.getItem("repName");
-  cityShow.textContent = localStorage.getItem("city");
+function resetForNext(){
+  input.value = "";
+  setTimeout(focusWithoutKeyboard, 30);
 }
 
-/* الصورة */
-imageInput.addEventListener("change", ()=>{
-  const file = imageInput.files[0];
-  if(!file) return;
-
-  const img = new Image();
-  const reader = new FileReader();
-
-  reader.onload = e => img.src = e.target.result;
-
-  img.onload = ()=>{
-    const canvas = document.createElement("canvas");
-    const scale = 800 / img.width;
-    canvas.width = 800;
-    canvas.height = img.height * scale;
-    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-    imageBase64 = canvas.toDataURL("image/jpeg",0.6);
-    preview.innerHTML = '<img src="'+imageBase64+'">';
-  };
-
-  reader.readAsDataURL(file);
+/* Munbyn يرسل Enter */
+input.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    searchStockOnly(input.value.trim());
+  }
 });
 
-/* إرسال البيانات */
-function sendData(){
-  if(!imageBase64){
-    alert("الصورة إلزامية");
-    return;
-  }
+document.getElementById("searchButton").onclick = () =>
+  searchStockOnly(input.value.trim());
 
-  sendBtn.disabled=true;
-  loading.textContent="جاري الإرسال...";
-
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const fd = new FormData();
-    fd.append("rep", localStorage.getItem("repName"));
-    fd.append("city", localStorage.getItem("city"));
-    fd.append("trade", trade.value);
-    fd.append("owner", owner.value);
-    fd.append("address", address.value);
-    fd.append("phone", phone.value);
-    fd.append("note", note.value);
-    fd.append("rating", rating.value);
-    fd.append("visitDays", visitDays.value);
-    fd.append("useOil", useOil.value);
-    fd.append("oilType", oilType.value);
-    fd.append("oilGrade", oilGrade.value);
-    fd.append("distance", distance.value);
-    fd.append("price", price.value);
-    fd.append("lat", pos.coords.latitude);
-    fd.append("lng", pos.coords.longitude);
-    fd.append("imageBase64", imageBase64);
-
-    fetch(SCRIPT_URL,{method:"POST",body:fd})
-    .then(()=>{
-      alert("تم الإرسال بنجاح");
-      location.reload();
-    })
-    .catch(()=>{
-      alert("حدث خطأ أثناء الإرسال");
-      sendBtn.disabled=false;
-      loading.textContent="";
-    });
-  });
+async function startBarcodeScanner(){
+  html5QrCode = new Html5Qrcode("cameraContainer");
+  const cams = await Html5Qrcode.getCameras();
+  html5QrCode.start(
+    cams[0].id,
+    { fps:10, qrbox:220 },
+    txt=>{
+      html5QrCode.stop();
+      searchStockOnly(txt);
+    }
+  );
 }
 
-/* دخول تلقائي */
-if(localStorage.getItem("repName") && localStorage.getItem("city")){
-  showForm();
-}
+document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
-
 </body>
 </html>

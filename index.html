@@ -65,8 +65,8 @@ button:disabled{background:#aaa;}
 <!-- تسجيل المندوب -->
 <div class="container" id="loginBox">
   <h2>تسجيل المندوب</h2>
-  <input id="repInput" placeholder="اسم المندوب الثلاثي">
-  <input id="cityInput" placeholder="المدينة">
+  <input id="repInput" placeholder="اسم المندوب الثلاثي" required>
+  <input id="cityInput" placeholder="المدينة" required>
   <button onclick="saveRep()">تسجيل</button>
 </div>
 
@@ -79,20 +79,21 @@ button:disabled{background:#aaa;}
 
   <h2>MAWARAN CO</h2>
 
-  <select id="useOil">
+  <!-- هل يستخدم زيت (في البداية) -->
+  <select id="useOil" required>
     <option value="">هل يستخدم زيت؟</option>
     <option value="نعم">نعم</option>
     <option value="لا">لا</option>
   </select>
 
-  <input id="trade" placeholder="الاسم التجاري">
-  <input id="owner" placeholder="اسم المالك">
-  <input id="address" placeholder="العنوان">
-  <input id="phone" type="tel" placeholder="رقم الهاتف">
+  <input id="trade" placeholder="الاسم التجاري" required>
+  <input id="owner" placeholder="اسم المالك" required>
+  <input id="address" placeholder="العنوان" required>
+  <input id="phone" type="tel" placeholder="رقم الهاتف" required>
 
-  <textarea id="note" placeholder="ملاحظات"></textarea>
+  <textarea id="note" placeholder="ملاحظات" required></textarea>
 
-  <select id="rating">
+  <select id="rating" required>
     <option value="">اختر التقييم</option>
     <option value="1">⭐</option>
     <option value="2">⭐⭐</option>
@@ -101,12 +102,12 @@ button:disabled{background:#aaa;}
     <option value="5">⭐⭐⭐⭐⭐</option>
   </select>
 
-  <input id="visitDays" type="number" placeholder="أيام الزيارة">
+  <input id="visitDays" type="number" placeholder="أيام الزيارة" required>
 
-  <input id="oilType" placeholder="نوع الزيت">
-  <input id="oilGrade" placeholder="درجة الزيت">
+  <input id="oilType" placeholder="نوع الزيت" required>
+  <input id="oilGrade" placeholder="درجة الزيت" required>
 
-  <select id="distance">
+  <select id="distance" required>
     <option value="">المسافة المقطوعة</option>
     <option value="3 كم">3 كم</option>
     <option value="5 كم">5 كم</option>
@@ -114,9 +115,10 @@ button:disabled{background:#aaa;}
     <option value="15 كم">15 كم</option>
   </select>
 
-  <input id="price" type="number" placeholder="سعر اللتر">
+  <input id="price" type="number" placeholder="سعر اللتر" required>
 
-  <input id="imageInput" type="file" accept="image/*" capture="environment">
+  <!-- صورة (إلزامية) -->
+  <input id="imageInput" type="file" accept="image/*" capture="environment" required>
   <div class="preview" id="preview"></div>
 
   <button id="sendBtn" onclick="sendData()">إرسال</button>
@@ -130,7 +132,7 @@ let imageBase64 = "";
 /* تسجيل المندوب */
 function saveRep(){
   if(!repInput.value.trim() || !cityInput.value.trim()){
-    alert("اسم المندوب والمدينة إلزامية");
+    alert("جميع الحقول إلزامية");
     return;
   }
   localStorage.setItem("repName", repInput.value.trim());
@@ -155,6 +157,7 @@ imageInput.addEventListener("change", ()=>{
   const reader = new FileReader();
 
   reader.onload = e => img.src = e.target.result;
+
   img.onload = ()=>{
     const canvas = document.createElement("canvas");
     const scale = 800 / img.width;
@@ -162,35 +165,21 @@ imageInput.addEventListener("change", ()=>{
     canvas.height = img.height * scale;
     canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
     imageBase64 = canvas.toDataURL("image/jpeg",0.6);
-    preview.innerHTML = `<img src="${imageBase64}">`;
+    preview.innerHTML = '<img src="'+imageBase64+'">';
   };
+
   reader.readAsDataURL(file);
 });
 
 /* إرسال البيانات */
 function sendData(){
-
-  const requiredFields = [
-    useOil, trade, owner, address, phone,
-    note, rating, visitDays,
-    oilType, oilGrade,
-    distance, price
-  ];
-
-  for(let field of requiredFields){
-    if(!field.value.trim()){
-      alert("جميع الحقول من البداية إلى أيام الزيارة إلزامية");
-      return;
-    }
-  }
-
   if(!imageBase64){
     alert("الصورة إلزامية");
     return;
   }
 
-  sendBtn.disabled = true;
-  loading.textContent = "جاري الإرسال...";
+  sendBtn.disabled=true;
+  loading.textContent="جاري الإرسال...";
 
   navigator.geolocation.getCurrentPosition(pos=>{
     const fd = new FormData();

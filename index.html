@@ -20,21 +20,11 @@ body{
   border-radius:12px;
   box-shadow:0 4px 12px rgba(0,0,0,.12);
 }
-h2{text-align:center;}
-label{
-  font-size:14px;
-  margin-top:12px;
-  display:block;
-}
-.required::after{
-  content:" *";
-  color:red;
-  font-weight:bold;
-}
+h2{text-align:center;margin-bottom:10px;}
 input,select,textarea,button{
   width:100%;
   padding:12px;
-  margin-top:6px;
+  margin-top:10px;
   font-size:15px;
   border-radius:6px;
   border:1px solid #ccc;
@@ -44,7 +34,6 @@ button{
   background:#007bff;
   color:#fff;
   border:none;
-  margin-top:15px;
 }
 button:disabled{background:#aaa;}
 .info{
@@ -57,13 +46,16 @@ button:disabled{background:#aaa;}
 }
 .loading{
   text-align:center;
-  color:#d00;
   margin-top:10px;
+  color:#d00;
+}
+.preview{
+  margin-top:10px;
+  text-align:center;
 }
 .preview img{
   max-width:100%;
   border-radius:8px;
-  margin-top:10px;
 }
 </style>
 </head>
@@ -73,13 +65,8 @@ button:disabled{background:#aaa;}
 <!-- تسجيل المندوب -->
 <div class="container" id="loginBox">
   <h2>تسجيل المندوب</h2>
-
-  <label class="required">اسم المندوب</label>
-  <input id="repInput">
-
-  <label class="required">المدينة</label>
-  <input id="cityInput">
-
+  <input id="repInput" placeholder="اسم المندوب الثلاثي">
+  <input id="cityInput" placeholder="المدينة">
   <button onclick="saveRep()">تسجيل</button>
 </div>
 
@@ -92,40 +79,21 @@ button:disabled{background:#aaa;}
 
   <h2>MAWARAN CO</h2>
 
-  <label class="required">هل يستخدم زيت؟</label>
   <select id="useOil">
-    <option value="">اختر</option>
-    <option>نعم</option>
-    <option>لا</option>
+    <option value="">هل يستخدم زيت؟</option>
+    <option value="نعم">نعم</option>
+    <option value="لا">لا</option>
   </select>
 
-  <label class="required">الاسم التجاري</label>
-  <input id="tradeName">
+  <input id="trade" placeholder="الاسم التجاري">
+  <input id="owner" placeholder="اسم المالك">
+  <input id="address" placeholder="العنوان">
+  <input id="phone" type="tel" placeholder="رقم الهاتف">
 
-  <label class="required">اسم المالك</label>
-  <input id="ownerName">
+  <textarea id="note" placeholder="ملاحظات"></textarea>
 
-  <label class="required">العنوان</label>
-  <input id="address">
-
-  <label class="required">رقم الهاتف</label>
-  <input id="phone" type="tel" inputmode="numeric">
-
-  <!-- ✅ الفئة (تظهر الآن بشكل مؤكد) -->
-  <label class="required">الفئة</label>
-  <select id="category">
-    <option value="">اختر</option>
-    <option>محل زيوت</option>
-    <option>كراج</option>
-    <option>محطة وقود</option>
-  </select>
-
-  <label class="required">ملاحظة</label>
-  <textarea id="note"></textarea>
-
-  <label class="required">التقييم</label>
   <select id="rating">
-    <option value="">اختر</option>
+    <option value="">اختر التقييم</option>
     <option value="1">⭐</option>
     <option value="2">⭐⭐</option>
     <option value="3">⭐⭐⭐</option>
@@ -133,28 +101,21 @@ button:disabled{background:#aaa;}
     <option value="5">⭐⭐⭐⭐⭐</option>
   </select>
 
-  <label class="required">أيام الزيارة</label>
-  <input id="visitDays" type="number">
+  <input id="visitDays" type="number" placeholder="أيام الزيارة">
 
-  <label>نوع الزيت</label>
-  <input id="oilType">
+  <input id="oilType" placeholder="نوع الزيت">
+  <input id="oilGrade" placeholder="درجة الزيت">
 
-  <label>درجة الزيت</label>
-  <input id="oilGrade">
-
-  <label>المسافة</label>
   <select id="distance">
-    <option value="">اختر</option>
-    <option>3 كم</option>
-    <option>5 كم</option>
-    <option>10 كم</option>
-    <option>15 كم</option>
+    <option value="">المسافة المقطوعة</option>
+    <option value="3 كم">3 كم</option>
+    <option value="5 كم">5 كم</option>
+    <option value="10 كم">10 كم</option>
+    <option value="15 كم">15 كم</option>
   </select>
 
-  <label>سعر اللتر</label>
-  <input id="price" type="number">
+  <input id="price" type="number" placeholder="سعر اللتر">
 
-  <label class="required">صورة الموقع</label>
   <input id="imageInput" type="file" accept="image/*" capture="environment">
   <div class="preview" id="preview"></div>
 
@@ -163,7 +124,7 @@ button:disabled{background:#aaa;}
 </div>
 
 <script>
-const SCRIPT_URL = "ضع_رابط_كوكل_سكربت_هنا";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKH7ayK_oYC1TROqFOyChIBQoktELaXAHEcTlqEpjhVLOAIELVRb9tWPpo3PJUyzba/exec";
 let imageBase64 = "";
 
 /* تسجيل المندوب */
@@ -177,20 +138,30 @@ function saveRep(){
   showForm();
 }
 
+/* عرض الفورم */
 function showForm(){
-  loginBox.style.display = "none";
-  formBox.style.display = "block";
+  loginBox.style.display="none";
+  formBox.style.display="block";
   repShow.textContent = localStorage.getItem("repName");
   cityShow.textContent = localStorage.getItem("city");
 }
 
-/* معالجة الصورة */
+/* الصورة */
 imageInput.addEventListener("change", ()=>{
   const file = imageInput.files[0];
   if(!file) return;
+
+  const img = new Image();
   const reader = new FileReader();
-  reader.onload = e=>{
-    imageBase64 = e.target.result;
+
+  reader.onload = e => img.src = e.target.result;
+  img.onload = ()=>{
+    const canvas = document.createElement("canvas");
+    const scale = 800 / img.width;
+    canvas.width = 800;
+    canvas.height = img.height * scale;
+    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+    imageBase64 = canvas.toDataURL("image/jpeg",0.6);
     preview.innerHTML = `<img src="${imageBase64}">`;
   };
   reader.readAsDataURL(file);
@@ -199,20 +170,22 @@ imageInput.addEventListener("change", ()=>{
 /* إرسال البيانات */
 function sendData(){
 
-  const required = [
-    useOil, tradeName, ownerName, address,
-    phone, category, note, rating, visitDays
+  const requiredFields = [
+    useOil, trade, owner, address, phone,
+    note, rating, visitDays,
+    oilType, oilGrade,
+    distance, price
   ];
 
-  for(let f of required){
-    if(!f.value.trim()){
-      alert("يرجى تعبئة جميع الحقول الإلزامية (*)");
+  for(let field of requiredFields){
+    if(!field.value.trim()){
+      alert("جميع الحقول من البداية إلى أيام الزيارة إلزامية");
       return;
     }
   }
 
   if(!imageBase64){
-    alert("صورة الموقع إلزامية");
+    alert("الصورة إلزامية");
     return;
   }
 
@@ -223,15 +196,14 @@ function sendData(){
     const fd = new FormData();
     fd.append("rep", localStorage.getItem("repName"));
     fd.append("city", localStorage.getItem("city"));
-    fd.append("useOil", useOil.value);
-    fd.append("trade", tradeName.value);
-    fd.append("owner", ownerName.value);
+    fd.append("trade", trade.value);
+    fd.append("owner", owner.value);
     fd.append("address", address.value);
     fd.append("phone", phone.value);
-    fd.append("category", category.value);
     fd.append("note", note.value);
     fd.append("rating", rating.value);
     fd.append("visitDays", visitDays.value);
+    fd.append("useOil", useOil.value);
     fd.append("oilType", oilType.value);
     fd.append("oilGrade", oilGrade.value);
     fd.append("distance", distance.value);
@@ -240,16 +212,16 @@ function sendData(){
     fd.append("lng", pos.coords.longitude);
     fd.append("imageBase64", imageBase64);
 
-    fetch(SCRIPT_URL,{method:"POST", body:fd})
-      .then(()=>{
-        alert("تم الإرسال بنجاح");
-        location.reload();
-      })
-      .catch(()=>{
-        alert("حدث خطأ أثناء الإرسال");
-        sendBtn.disabled=false;
-        loading.textContent="";
-      });
+    fetch(SCRIPT_URL,{method:"POST",body:fd})
+    .then(()=>{
+      alert("تم الإرسال بنجاح");
+      location.reload();
+    })
+    .catch(()=>{
+      alert("حدث خطأ أثناء الإرسال");
+      sendBtn.disabled=false;
+      loading.textContent="";
+    });
   });
 }
 

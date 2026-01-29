@@ -98,13 +98,12 @@ th{background:#eee}
   <h1>MAWARAN co</h1>
   <h2>Store</h2>
 
-  <!-- 🔍 البحث (نفس الكود الأصلي) -->
+  <!-- البحث -->
   <div class="search-box">
     <input id="searchInput" type="text" placeholder="سكان الباركود">
-
     <div class="buttons">
-      <button id="searchButton">🔍 بحث</button>
-      <button id="scanButton">📷 كاميرا</button>
+      <button id="searchButton">🔍 Search</button>
+      <button id="scanButton">📷 Camera</button>
     </div>
   </div>
 
@@ -114,12 +113,13 @@ th{background:#eee}
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzMjnYCz70T4LksE6A-cye7kNFq9gG2OygB1mN8iVDcks7loNdmQmt1YClX5IYk7JZptA/exec";
+
 const input = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
 let html5QrCode;
 let isSending = false;
 
-/* 🔒 تركيز بدون كيبورد */
+/* تركيز بدون كيبورد */
 function focusWithoutKeyboard(){
   input.setAttribute("readonly", true);
   input.focus();
@@ -131,13 +131,13 @@ window.onload = focusWithoutKeyboard;
 async function searchStock(code){
   if(!code) return;
 
-  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
+  resultDiv.innerHTML = "<p class='loading'>⏳ Searching...</p>";
   const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
   const data = await res.json();
 
   if(!data || !data.items.length){
     resultDiv.innerHTML = "<p class='error'>❌ لا يوجد بيانات</p>";
-    reset();
+    resetSearchInput();
     return;
   }
 
@@ -146,9 +146,9 @@ async function searchStock(code){
 
   let html = `
     <h3>${data.name}</h3>
-    <div class="price-single">💵 سعر المفرد: ${data.price_single} $</div>
-    <div class="price-wholesale">🏷️ سعر الجملة: ${data.price_wholesale} $</div>
-    <p style="text-align:center">📦 الكمية: ${total}</p>
+    <div class="price-single">💵 Price: ${data.price_single} $</div>
+    <div class="price-wholesale">🏷️ Last price: ${data.price_wholesale} $</div>
+    <p style="text-align:center">📦 كمية: ${total}</p>
 
     <table>
       <tr><th>المستودع</th><th>الكمية</th></tr>`;
@@ -159,21 +159,34 @@ async function searchStock(code){
 
   <div class="form-box">
     <input id="f_code" value="${data.form_code}" readonly>
-    <input id="f_qty" type="number" inputmode="numeric" placeholder="الكمية">
-    <input id="f_price" type="number" inputmode="numeric" placeholder="السعر">
-    <button onclick="sendForm(event)">📤 إرسال</button>
+    <input id="f_qty" type="number" inputmode="numeric" placeholder="عدد">
+    <input id="f_price" type="number" inputmode="numeric" placeholder="نرخ">
+    <button onclick="sendForm(event)">📤 SEND</button>
   </div>`;
 
   resultDiv.innerHTML = html;
-  reset();
+  resetSearchInput();
 }
 
-function reset(){
+/* تفريغ البحث فقط */
+function resetSearchInput(){
   input.value = "";
   setTimeout(focusWithoutKeyboard, 30);
 }
 
-/* Enter من جهاز Munbyn */
+/* الرجوع لوضع البداية */
+function resetToStart(){
+  resultDiv.innerHTML = "";
+  input.value = "";
+
+  if(html5QrCode){
+    try{ html5QrCode.stop(); }catch(e){}
+  }
+
+  setTimeout(focusWithoutKeyboard, 100);
+}
+
+/* Enter */
 input.addEventListener("keydown", e=>{
   if(e.key === "Enter"){
     searchStock(input.value.trim());
@@ -213,20 +226,21 @@ async function sendForm(e){
 
   isSending = true;
   btn.disabled = true;
-  btn.innerText = "⏳ جارِ الإرسال...";
+  btn.innerText = "⏳ Sending...";
 
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({code, qty, price})
   });
 
-  document.getElementById("f_qty").value = "";
-  document.getElementById("f_price").value = "";
-
   isSending = false;
   btn.disabled = false;
-  btn.innerText = "📤 إرسال";
-  alert("✅ تم الإرسال");
+  btn.innerText = "📤 SEND";
+
+  alert("✅ تواو ده ست خوش");
+
+  // 🔄 الرجوع لوضع البداية
+  resetToStart();
 }
 </script>
 </body>

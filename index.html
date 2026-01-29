@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بحث المخزون</title>
 
 <style>
 body{
   font-family: Tahoma, Arial;
-  background:#f0f2f5;
+  background:#eef1f4;
   margin:0;
   padding:8px;
 }
 .container{
-  max-width:100%;
   background:#fff;
-  padding:10px;
-  border-radius:10px;
+  padding:12px;
+  border-radius:12px;
 }
-h1{font-size:20px;margin:4px 0;text-align:center}
-h2{font-size:16px;margin:0 0 6px;text-align:center}
-h3{font-size:16px;margin:6px 0;text-align:center}
+h1,h2,h3{text-align:center;margin:6px 0}
 
 .search-box{
   display:flex;
@@ -34,58 +31,60 @@ input{
   border:1px solid #ccc;
   text-align:center;
 }
-.buttons{
-  display:flex;
-  gap:6px;
-}
 button{
-  flex:1;
-  padding:10px;
-  font-size:15px;
+  padding:12px;
   border:none;
   border-radius:8px;
   background:#007bff;
   color:#fff;
+  font-size:16px;
 }
 
-.price{
-  font-size:20px;
+.price-single{
   text-align:center;
+  font-size:20px;
   color:#198754;
   font-weight:bold;
 }
-.total{
-  font-size:15px;
+.price-wholesale{
   text-align:center;
+  font-size:18px;
+  color:#0d6efd;
+  font-weight:bold;
 }
 
-.result{
-  margin-top:6px;
-  background:#fafafa;
-  padding:6px;
-  border-radius:8px;
+.form-box{
+  margin-top:10px;
+  background:#f9f9f9;
+  padding:10px;
+  border-radius:10px;
+}
+.form-box input{
+  margin-bottom:6px;
+}
+.form-box button{
+  background:#198754;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
+  margin-top:6px;
 }
 th,td{
   border:1px solid #ccc;
   padding:6px;
   font-size:14px;
+  text-align:center;
 }
 th{background:#eee}
 
 .loading,.error{
   text-align:center;
   font-weight:bold;
-  font-size:14px;
 }
 .error{color:red}
 </style>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
@@ -94,103 +93,94 @@ th{background:#eee}
   <h2>Store</h2>
 
   <div class="search-box">
-    <input id="searchInput" type="text" placeholder="سكان الباركود">
-
-    <div class="buttons">
-      <button id="searchButton">🔍 بحث</button>
-      <button id="scanButton">📷 كاميرا</button>
-    </div>
+    <input id="searchInput" placeholder="سكان الباركود">
+    <button onclick="search()">🔍 سكان</button>
   </div>
 
-  <div id="cameraContainer"></div>
-  <div class="result" id="result"></div>
+  <div id="result"></div>
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbxCSQ1nUnbo99kTNDWMZyDN7s5UFTWztPuzHvAMSgMldPPAEMmgrx1GgIlzNGKRVPULEg/exec";
-
-const input = document.getElementById("searchInput");
+const API = "https://script.google.com/macros/s/AKfycbzMjnYCz70T4LksE6A-cye7kNFq9gG2OygB1mN8iVDcks7loNdmQmt1YClX5IYk7JZptA/exec";
 const resultDiv = document.getElementById("result");
-let html5QrCode;
+let isSending = false;
 
-/* 🔒 تركيز بدون كيبورد */
-function focusWithoutKeyboard(){
-  input.setAttribute("readonly", true);
-  input.focus();
-  setTimeout(() => {
-    input.removeAttribute("readonly");
-  }, 50);
-}
-
-/* عند الفتح */
-window.onload = () => {
-  focusWithoutKeyboard();
-};
-
-async function fetchStock(code){
-  const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
-  return await res.json();
-}
-
-async function searchStockOnly(code){
+async function search(){
+  const code = document.getElementById("searchInput").value.trim();
   if(!code) return;
 
-  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
-  const data = await fetchStock(code);
+  resultDiv.innerHTML = "<p class='loading'>⏳ Searching...</p>";
+  const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
+  const data = await res.json();
 
   if(!data || !data.items.length){
-    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد رصيد</p>";
-    resetForNext();
+    resultDiv.innerHTML = "<p class='error'>❌ لا يوجد بيانات</p>";
     return;
   }
 
   let total = 0;
-  let html = `<h3>${data.name}</h3>`;
-  html += `<div class="price">💵 ${data.price ?? "-"} $</div>`;
-
   data.items.forEach(i => total += Number(i.balance) || 0);
-  html += `<div class="total">📦 الكمية: ${total}</div>`;
 
-  html += `<table><tr><th>المستودع</th><th>الكمية</th></tr>`;
+  let html = `
+    <h3>${data.name}</h3>
+    <div class="price-single">💵 نرخ: ${data.price_single} $</div>
+    <div class="price-wholesale">🏷️ دوایین نرخ: ${data.price_wholesale} $</div>
+    <p style="text-align:center">📦 كمية: ${total}</p>
+
+    <table>
+      <tr><th>المستودع</th><th>الكمية</th></tr>`;
   data.items.forEach(i=>{
     html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
   });
-  html += `</table>`;
+  html += `</table>
+
+  <div class="form-box">
+    <input id="f_code" value="${data.form_code}" readonly>
+    <input id="f_qty" type="number" inputmode="numeric" placeholder="كمية">
+    <input id="f_price" type="number" inputmode="numeric" placeholder="نرخ">
+    <button onclick="sendForm(event)">📤 إرسال</button>
+  </div>`;
 
   resultDiv.innerHTML = html;
-  resetForNext();
 }
 
-function resetForNext(){
-  input.value = "";
-  setTimeout(focusWithoutKeyboard, 30);
-}
+async function sendForm(e){
+  if(isSending) return;
 
-/* Munbyn يرسل Enter */
-input.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    searchStockOnly(input.value.trim());
+  const qty = document.getElementById("f_qty").value;
+  const price = document.getElementById("f_price").value;
+  const code = document.getElementById("f_code").value;
+  const btn = e.target;
+
+  if(!qty || !price){
+    alert("⚠️ تکایە بڕی و نرخەکە بنووسە");
+    return;
   }
-});
 
-document.getElementById("searchButton").onclick = () =>
-  searchStockOnly(input.value.trim());
+  isSending = true;
+  btn.disabled = true;
+  btn.innerText = "⏳ Sending ...";
 
-async function startBarcodeScanner(){
-  html5QrCode = new Html5Qrcode("cameraContainer");
-  const cams = await Html5Qrcode.getCameras();
-  html5QrCode.start(
-    cams[0].id,
-    { fps:10, qrbox:220 },
-    txt=>{
-      html5QrCode.stop();
-      searchStockOnly(txt);
-    }
-  );
+  try{
+    await fetch(API,{
+      method:"POST",
+      body: JSON.stringify({ code, qty, price })
+    });
+
+    // تنظيف الحقول
+    document.getElementById("f_qty").value = "";
+    document.getElementById("f_price").value = "";
+
+    alert("✅ تەواوه");
+
+  }catch(err){
+    alert("❌ خطأ في الإرسال");
+  }
+
+  isSending = false;
+  btn.disabled = false;
+  btn.innerText = "📤 Send";
 }
-
-document.getElementById("scanButton").onclick = startBarcodeScanner;
 </script>
 </body>
 </html>

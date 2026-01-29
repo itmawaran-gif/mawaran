@@ -2,22 +2,25 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>بحث المخزون</title>
 
 <style>
 body{
   font-family: Tahoma, Arial;
-  background:#eef1f4;
+  background:#f0f2f5;
   margin:0;
   padding:8px;
 }
 .container{
+  max-width:100%;
   background:#fff;
-  padding:12px;
-  border-radius:12px;
+  padding:10px;
+  border-radius:10px;
 }
-h1,h2,h3{text-align:center;margin:6px 0}
+h1{font-size:20px;margin:4px 0;text-align:center}
+h2{font-size:16px;margin:0 0 6px;text-align:center}
+h3{text-align:center;margin:6px 0}
 
 .search-box{
   display:flex;
@@ -31,13 +34,18 @@ input{
   border:1px solid #ccc;
   text-align:center;
 }
+.buttons{
+  display:flex;
+  gap:6px;
+}
 button{
-  padding:12px;
+  flex:1;
+  padding:10px;
+  font-size:15px;
   border:none;
   border-radius:8px;
   background:#007bff;
   color:#fff;
-  font-size:16px;
 }
 
 .price-single{
@@ -59,12 +67,8 @@ button{
   padding:10px;
   border-radius:10px;
 }
-.form-box input{
-  margin-bottom:6px;
-}
-.form-box button{
-  background:#198754;
-}
+.form-box input{margin-bottom:6px}
+.form-box button{background:#198754}
 
 table{
   width:100%;
@@ -85,6 +89,8 @@ th{background:#eee}
 }
 .error{color:red}
 </style>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 
 <body>
@@ -92,29 +98,46 @@ th{background:#eee}
   <h1>MAWARAN co</h1>
   <h2>Store</h2>
 
+  <!-- 🔍 البحث (نفس الكود الأصلي) -->
   <div class="search-box">
-    <input id="searchInput" placeholder="سكان الباركود">
-    <button onclick="search()">🔍 سكان</button>
+    <input id="searchInput" type="text" placeholder="سكان الباركود">
+
+    <div class="buttons">
+      <button id="searchButton">🔍 بحث</button>
+      <button id="scanButton">📷 كاميرا</button>
+    </div>
   </div>
 
+  <div id="cameraContainer"></div>
   <div id="result"></div>
 </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbzMjnYCz70T4LksE6A-cye7kNFq9gG2OygB1mN8iVDcks7loNdmQmt1YClX5IYk7JZptA/exec";
+const input = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
+let html5QrCode;
 let isSending = false;
 
-async function search(){
-  const code = document.getElementById("searchInput").value.trim();
+/* 🔒 تركيز بدون كيبورد */
+function focusWithoutKeyboard(){
+  input.setAttribute("readonly", true);
+  input.focus();
+  setTimeout(() => input.removeAttribute("readonly"), 50);
+}
+window.onload = focusWithoutKeyboard;
+
+/* البحث */
+async function searchStock(code){
   if(!code) return;
 
-  resultDiv.innerHTML = "<p class='loading'>⏳ Searching...</p>";
+  resultDiv.innerHTML = "<p class='loading'>⏳ جارِ البحث...</p>";
   const res = await fetch(`${API}?code=${encodeURIComponent(code)}`);
   const data = await res.json();
 
   if(!data || !data.items.length){
     resultDiv.innerHTML = "<p class='error'>❌ لا يوجد بيانات</p>";
+    reset();
     return;
   }
 
@@ -123,9 +146,9 @@ async function search(){
 
   let html = `
     <h3>${data.name}</h3>
-    <div class="price-single">💵 نرخ: ${data.price_single} $</div>
-    <div class="price-wholesale">🏷️ دوایین نرخ: ${data.price_wholesale} $</div>
-    <p style="text-align:center">📦 كمية: ${total}</p>
+    <div class="price-single">💵 سعر المفرد: ${data.price_single} $</div>
+    <div class="price-wholesale">🏷️ سعر الجملة: ${data.price_wholesale} $</div>
+    <p style="text-align:center">📦 الكمية: ${total}</p>
 
     <table>
       <tr><th>المستودع</th><th>الكمية</th></tr>`;
@@ -136,14 +159,45 @@ async function search(){
 
   <div class="form-box">
     <input id="f_code" value="${data.form_code}" readonly>
-    <input id="f_qty" type="number" inputmode="numeric" placeholder="كمية">
-    <input id="f_price" type="number" inputmode="numeric" placeholder="نرخ">
+    <input id="f_qty" type="number" inputmode="numeric" placeholder="الكمية">
+    <input id="f_price" type="number" inputmode="numeric" placeholder="السعر">
     <button onclick="sendForm(event)">📤 إرسال</button>
   </div>`;
 
   resultDiv.innerHTML = html;
+  reset();
 }
 
+function reset(){
+  input.value = "";
+  setTimeout(focusWithoutKeyboard, 30);
+}
+
+/* Enter من جهاز Munbyn */
+input.addEventListener("keydown", e=>{
+  if(e.key === "Enter"){
+    searchStock(input.value.trim());
+  }
+});
+document.getElementById("searchButton").onclick =
+  () => searchStock(input.value.trim());
+
+/* الكاميرا */
+async function startBarcodeScanner(){
+  html5QrCode = new Html5Qrcode("cameraContainer");
+  const cams = await Html5Qrcode.getCameras();
+  html5QrCode.start(
+    cams[0].id,
+    { fps:10, qrbox:220 },
+    txt=>{
+      html5QrCode.stop();
+      searchStock(txt);
+    }
+  );
+}
+document.getElementById("scanButton").onclick = startBarcodeScanner;
+
+/* إرسال الفورم */
 async function sendForm(e){
   if(isSending) return;
 
@@ -153,33 +207,26 @@ async function sendForm(e){
   const btn = e.target;
 
   if(!qty || !price){
-    alert("⚠️ تکایە بڕی و نرخەکە بنووسە");
+    alert("⚠️ أدخل الكمية والسعر");
     return;
   }
 
   isSending = true;
   btn.disabled = true;
-  btn.innerText = "⏳ Sending ...";
+  btn.innerText = "⏳ جارِ الإرسال...";
 
-  try{
-    await fetch(API,{
-      method:"POST",
-      body: JSON.stringify({ code, qty, price })
-    });
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({code, qty, price})
+  });
 
-    // تنظيف الحقول
-    document.getElementById("f_qty").value = "";
-    document.getElementById("f_price").value = "";
-
-    alert("✅ تەواوه");
-
-  }catch(err){
-    alert("❌ خطأ في الإرسال");
-  }
+  document.getElementById("f_qty").value = "";
+  document.getElementById("f_price").value = "";
 
   isSending = false;
   btn.disabled = false;
-  btn.innerText = "📤 Send";
+  btn.innerText = "📤 إرسال";
+  alert("✅ تم الإرسال");
 }
 </script>
 </body>

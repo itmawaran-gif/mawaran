@@ -93,14 +93,68 @@ body{
   font-size:11px;font-weight:600;color:var(--muted);
   text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;display:block;
 }
-/* Input full-width on top */
+
+/* Search input wrapper – needed for dropdown positioning */
+.input-wrap{position:relative;margin-bottom:10px}
+
 #searchInput{
   width:100%;padding:14px;font-size:16px;font-family:inherit;
   border:1.5px solid var(--border);border-radius:10px;
   background:#f8fafc;color:var(--text);outline:none;transition:border .2s;
-  display:block;margin-bottom:10px;
+  display:block;
 }
 #searchInput:focus{border-color:var(--blue);background:#fff}
+
+/* ── SUGGESTIONS DROPDOWN ── */
+#suggestDrop{
+  position:absolute;
+  top:calc(100% + 4px);
+  left:0;right:0;
+  background:var(--surface);
+  border:1.5px solid var(--blue);
+  border-radius:12px;
+  box-shadow:0 8px 28px rgba(14,165,233,.18);
+  z-index:500;
+  overflow:hidden;
+  display:none;
+  animation:dropIn .18s ease;
+}
+#suggestDrop.open{display:block}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+.sug-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 14px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  transition:background .12s;
+  gap:8px;
+}
+.sug-item:last-child{border-bottom:none}
+.sug-item:active,.sug-item:hover{background:#eff6ff}
+.sug-name{font-size:14px;font-weight:600;color:var(--text);flex:1;line-height:1.4}
+.sug-name em{
+  font-style:normal;
+  color:var(--blue);
+  background:#dbeafe;
+  border-radius:4px;
+  padding:0 2px;
+}
+.sug-code{font-size:11px;color:var(--muted);background:var(--bg);
+  border-radius:6px;padding:3px 7px;flex-shrink:0;font-weight:500}
+
+.sug-loading{
+  padding:14px;text-align:center;
+  font-size:13px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.spin{
+  width:14px;height:14px;border:2px solid var(--border);
+  border-top-color:var(--blue);border-radius:50%;
+  animation:spin .7s linear infinite;display:inline-block;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* Buttons row below input */
 .search-btns{display:flex;gap:8px}
 .btn-ico{
@@ -203,7 +257,6 @@ body{
       <span class="logo-sub">Inventory Store</span>
     </div>
   </div>
-
   <button id="installBtn" onclick="triggerInstall()">Install</button>
 </header>
 
@@ -220,8 +273,14 @@ body{
 <div class="inner">
 
   <div class="card search-card">
-    <span class="section-label">🔎 Search by code or barcode</span>
-    <input id="searchInput" type="text" placeholder="Enter code...">
+    <span class="section-label">🔎 Search by code, barcode or name</span>
+
+    <div class="input-wrap">
+      <input id="searchInput" type="text" placeholder="Enter code or product name..." autocomplete="off">
+      <!-- Suggestions dropdown -->
+      <div id="suggestDrop"></div>
+    </div>
+
     <div class="search-btns">
       <button class="btn-ico btn-search" id="searchBtn">🔍 Search</button>
       <button class="btn-ico btn-cam"    id="camBtn">📷 Camera</button>
@@ -243,7 +302,7 @@ body{
 /* ══ Service Worker (blob) ══ */
 if("serviceWorker" in navigator){
   const code = `
-    const V="mawaran-v1";
+    const V="mawaran-v2";
     self.addEventListener("install",()=>self.skipWaiting());
     self.addEventListener("activate",e=>e.waitUntil(clients.claim()));
     self.addEventListener("fetch",e=>{
@@ -261,15 +320,18 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbwQbMgb6JoBlYYNeUV6IVXnRnn-vilapngch0KcyZ11T4BnOzWCL7BKxrxfEz3wYyZX8A/exec";
-const searchInput = document.getElementById("searchInput");
-const resultDiv   = document.getElementById("result");
-const cameraWrap  = document.getElementById("cameraWrap");
-let scanner = null;
-let isSending = false;
+const API = "https://script.google.com/macros/s/AKfycbydkUFZyRA6_JSFslsF0cAcV7VZpbtwvNG4X6MsHbQ1pcCUAULjsqiHFZu_QJmO7GQubg/exec";
+const searchInput  = document.getElementById("searchInput");
+const suggestDrop  = document.getElementById("suggestDrop");
+const resultDiv    = document.getElementById("result");
+const cameraWrap   = document.getElementById("cameraWrap");
+let scanner        = null;
+let isSending      = false;
 let deferredPrompt = null;
+let suggestTimer   = null;
+let lastSugQuery   = "";
 
-/* Install */
+/* ══ Install ══ */
 window.addEventListener("beforeinstallprompt", e=>{
   e.preventDefault(); deferredPrompt=e;
   document.getElementById("installBtn").classList.add("show");
@@ -287,7 +349,7 @@ function triggerInstall(){
   });
 }
 
-/* iOS banner */
+/* ══ iOS banner ══ */
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 const isStandalone = navigator.standalone===true
   || window.matchMedia("(display-mode:standalone)").matches;
@@ -298,7 +360,7 @@ function closeBanner(){
   sessionStorage.bannerDone="1";
 }
 
-/* Focus */
+/* ══ Focus helper ══ */
 function focusNoKB(){
   searchInput.setAttribute("readonly","true");
   searchInput.focus();
@@ -306,62 +368,146 @@ function focusNoKB(){
 }
 window.onload=focusNoKB;
 
-/* Events */
-searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
-document.getElementById("searchBtn").onclick=doSearch;
-document.getElementById("camBtn").onclick=openCamera;
+/* ══ Close dropdown when clicking outside ══ */
+document.addEventListener("pointerdown", e=>{
+  if(!suggestDrop.contains(e.target) && e.target!==searchInput){
+    closeDrop();
+  }
+});
+
+/* ══ Highlight matched part ══ */
+function highlight(text, query){
+  // Strip spaces for matching position, but highlight in original text
+  const tLow  = text.toLowerCase().replace(/\s+/g,"");
+  const qLow  = query.toLowerCase().replace(/\s+/g,"");
+  const idx   = tLow.indexOf(qLow);
+  if(idx < 0) return text;
+
+  // Map stripped index back to original string
+  let si=0, start=-1, end=-1, count=0;
+  for(let i=0;i<text.length;i++){
+    if(text[i].trim()==="") continue;
+    if(count===idx) start=i;
+    if(count===idx+qLow.length-1) end=i;
+    count++;
+    si++;
+  }
+  if(start<0||end<0) return text;
+  return text.slice(0,start)
+    + `<em>${text.slice(start,end+1)}</em>`
+    + text.slice(end+1);
+}
+
+/* ══ Show / Close dropdown ══ */
+function closeDrop(){ suggestDrop.classList.remove("open"); suggestDrop.innerHTML=""; }
+
+function showDrop(html){
+  suggestDrop.innerHTML=html;
+  suggestDrop.classList.add("open");
+}
+
+/* ══ Live suggestions while typing ══ */
+searchInput.addEventListener("input", ()=>{
+  const q = searchInput.value.trim();
+
+  if(q.length < 2){
+    closeDrop();
+    clearTimeout(suggestTimer);
+    return;
+  }
+
+  if(q === lastSugQuery) return;
+
+  clearTimeout(suggestTimer);
+
+  // Show loading spinner immediately
+  showDrop(`<div class="sug-loading"><span class="spin"></span> Searching...</div>`);
+
+  suggestTimer = setTimeout(()=> fetchSuggestions(q), 320);
+});
+
+async function fetchSuggestions(q){
+  lastSugQuery = q;
+  try{
+    const res  = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`);
+    const data = await res.json();
+
+    // If the query changed while we were fetching, ignore old result
+    if(q !== lastSugQuery) return;
+
+    if(!data.suggestions || data.suggestions.length===0){
+      closeDrop(); return;
+    }
+
+    let html="";
+    data.suggestions.forEach(s=>{
+      const hName = highlight(s.name, q);
+      html += `<div class="sug-item" onpointerdown="pickSuggestion('${esc(s.code)}')">
+        <span class="sug-name">${hName}</span>
+        <span class="sug-code">${s.code}</span>
+      </div>`;
+    });
+    showDrop(html);
+  }catch(e){
+    closeDrop();
+  }
+}
+
+function esc(str){ return str.replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
+
+function pickSuggestion(code){
+  closeDrop();
+  searchInput.value = code;
+  searchStock(code);
+}
+
+/* ══ Search on Enter / button ══ */
+searchInput.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ closeDrop(); doSearch(); }
+  if(e.key==="Escape"){ closeDrop(); }
+});
+document.getElementById("searchBtn").onclick = ()=>{ closeDrop(); doSearch(); };
+document.getElementById("camBtn").onclick    = openCamera;
 function doSearch(){ searchStock(searchInput.value.trim()); }
 
-/* ── Search ── */
+/* ── Full Search ── */
 async function searchStock(code){
   if(!code) return;
   stopCamera();
+  lastSugQuery = "";
+
   resultDiv.innerHTML=`<div class="card"><div class="state-box"><div class="ico">⏳</div><p>Searching...</p></div></div>`;
   try{
     const res  = await fetch(`${API}?code=${encodeURIComponent(code)}`);
     const data = await res.json();
 
-    // ── حالة الاقتراحات (بحث بالاسم) ──
-    if(data.suggestions){
-      let html=`<div class="card" style="overflow:hidden">
-        <div style="padding:12px 16px;background:var(--header);color:#94a3b8;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">
-          🔍 اختر المنتج
-        </div>`;
-      data.suggestions.forEach(s=>{
-        html+=`<button onclick="searchStock('${s.code.replace(/'/g,"\\'")}');searchInput.value='${s.code.replace(/'/g,"\\'")}'"
-          style="width:100%;padding:14px 16px;background:none;border:none;border-top:1px solid var(--border);
-                 text-align:right;font-family:inherit;font-size:15px;cursor:pointer;display:flex;
-                 flex-direction:column;gap:3px;transition:background .15s"
-          onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='none'">
-          <span style="font-weight:600;color:var(--text)">${s.name}</span>
-          <span style="font-size:12px;color:var(--muted)">${s.code}</span>
-        </button>`;
-      });
-      html+=`</div>`;
-      resultDiv.innerHTML=html;
-      return; // لا نعيد تعيين الإدخال حتى يبقى النص
-    }
-
-    // ── لا توجد نتائج ──
     if(!data?.items?.length){
       resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">❌</div><p>No data found for this code</p></div></div>`;
       resetInput(); return;
     }
 
-    // ── نتيجة عادية ──
     let total=0;
     data.items.forEach(i=>total+=Number(i.balance)||0);
+
     let html=`<div class="card result-card">
       <div class="res-header">
         <div class="res-name">${data.name}</div>
         <div class="res-code">Code: ${code.toUpperCase()}</div>
       </div>`;
-    if(data.usage) html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
+
+    if(data.usage)
+      html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
+
     html+=`<div style="padding:16px;text-align:center">
       <div style="font-size:28px;font-weight:700;color:var(--green)">${data.price_single} $</div>
-      <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
-      <table class="stock-table">`;
-    data.items.forEach(i=>{html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;});
+    </div>
+    <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
+    <table class="stock-table">`;
+
+    data.items.forEach(i=>{
+      html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    });
+
     html+=`</table></div>
     <div class="card form-card">
       <div class="form-title">📤 Add Movement</div>
@@ -374,6 +520,7 @@ async function searchStock(code){
           Last Price: <span style="color:var(--blue)">${data.price_wholesale} $</span>
         </div>
       </div>`;
+
     resultDiv.innerHTML=html;
     resetInput();
   }catch(err){
@@ -382,8 +529,8 @@ async function searchStock(code){
   }
 }
 
-function resetInput(){ searchInput.value=""; setTimeout(focusNoKB,40); }
-function resetAll(){ resultDiv.innerHTML=""; searchInput.value=""; stopCamera(); setTimeout(focusNoKB,100); }
+function resetInput(){ searchInput.value=""; lastSugQuery=""; setTimeout(focusNoKB,40); }
+function resetAll(){ resultDiv.innerHTML=""; searchInput.value=""; lastSugQuery=""; stopCamera(); closeDrop(); setTimeout(focusNoKB,100); }
 
 /* ── Camera (robust 3-strategy) ── */
 async function openCamera(){
@@ -393,18 +540,14 @@ async function openCamera(){
   const cfg = { fps:12, qrbox:{width:230,height:230}, aspectRatio:1.0 };
   const onScan = txt=>{ stopCamera(); searchStock(txt); };
 
-  /* 1. facingMode:"environment" */
   try{ await scanner.start({facingMode:"environment"}, cfg, onScan); return; }catch(e1){}
 
-  /* 2. getCameras → filter by label */
   let cams=[];
   try{ cams = await Html5Qrcode.getCameras(); }catch(e){}
   if(cams.length){
     const back = cams.find(c=>/back|rear|environment|خلفي/i.test(c.label))
                 || cams[cams.length-1];
     try{ await scanner.start(back.id, cfg, onScan); return; }catch(e2){}
-
-    /* 3. try every camera, last to first */
     for(let i=cams.length-1;i>=0;i--){
       try{ await scanner.start(cams[i].id, cfg, onScan); return; }catch(e){}
     }
@@ -426,10 +569,10 @@ async function stopCamera(){
 /* ── Send ── */
 async function sendForm(e){
   if(isSending) return;
-  const qty=document.getElementById("f_qty")?.value;
-  const price=document.getElementById("f_price")?.value;
-  const code=document.getElementById("f_code")?.value;
-  const btn=e.target;
+  const qty   = document.getElementById("f_qty")?.value;
+  const price = document.getElementById("f_price")?.value;
+  const code  = document.getElementById("f_code")?.value;
+  const btn   = e.target;
   if(!qty||!price){alert("⚠️ Please enter quantity and price");return;}
   isSending=true; btn.disabled=true; btn.innerText="⏳ Sending...";
   try{

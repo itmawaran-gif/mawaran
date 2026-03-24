@@ -2,599 +2,434 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MAWARAN Store">
+<meta name="apple-mobile-web-app-title" content="MAWARAN">
 <meta name="theme-color" content="#0f172a">
+<link rel="manifest" id="manifestLink">
 <title>MAWARAN Store</title>
-
-<!-- Apple Touch Icon (SVG → base64) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI0IiBmaWxsPSIjMGYxNzJhIi8+PHRleHQgeD0iNjAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjMyIiBmb250LWZhbWlseT0iQXJpYWwiIGZpbGw9IiNmNTljMGEiPk08L3RleHQ+PHRleHQgeD0iNjAiIHk9Ijc4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iQXJpYWwiIGZpbGw9IiM5NGEzYjgiPk1BV0FSQU48L3RleHQ+PHRleHQgeD0iNjAiIHk9Ijk1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjExIiBmb250LWZhbWlseT0iQXJpYWwiIGZpbGw9IiM5NGEzYjgiPlN0b3JlPC90ZXh0Pjwvc3ZnPg==">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <style>
-  :root{
-    --bg:        #f1f5f9;
-    --surface:   #ffffff;
-    --header:    #0f172a;
-    --accent:    #f59c0a;
-    --accent2:   #0ea5e9;
-    --green:     #10b981;
-    --text:      #1e293b;
-    --muted:     #64748b;
-    --border:    #e2e8f0;
-    --radius:    14px;
-    --shadow:    0 2px 12px rgba(0,0,0,.08);
-  }
+:root{
+  --bg:      #f1f5f9;
+  --surface: #ffffff;
+  --header:  #0f172a;
+  --accent:  #f59c0a;
+  --blue:    #0ea5e9;
+  --green:   #10b981;
+  --text:    #1e293b;
+  --muted:   #64748b;
+  --border:  #e2e8f0;
+  --r:       14px;
+  --sh:      0 2px 14px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;height:-webkit-fill-available}
+body{
+  font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:-webkit-fill-available;
+  display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+}
 
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* HEADER */
+.app-header{
+  background:var(--header);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:36px;height:36px;background:var(--accent);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:800;color:var(--header);flex-shrink:0;
+}
+.logo-text{display:flex;flex-direction:column;line-height:1}
+.logo-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px}
+.logo-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+#installBtn{
+  display:none;background:var(--accent);color:var(--header);
+  border:none;border-radius:8px;padding:7px 12px;
+  font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
+}
+#installBtn.show{display:block}
 
-  body{
-    font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100dvh;
-    display:flex;
-    flex-direction:column;
-  }
+/* iOS BANNER */
+#iosBanner{
+  display:none;background:#1e3a5f;color:#fff;
+  padding:10px 14px;align-items:center;gap:10px;flex-shrink:0;
+}
+#iosBanner.show{display:flex}
+.ios-text{flex:1;font-size:12px;line-height:1.6;color:#cbd5e1}
+.ios-text strong{display:block;font-size:13px;color:var(--accent);margin-bottom:2px}
+.ios-close{background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;padding:2px 6px}
 
-  /* ===== HEADER ===== */
-  .app-header{
-    background:var(--header);
-    padding:14px 16px 12px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    position:sticky;
-    top:0;
-    z-index:100;
-  }
-  .logo{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .logo-icon{
-    width:38px;height:38px;
-    background:var(--accent);
-    border-radius:10px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:18px;font-weight:700;color:var(--header);
-    flex-shrink:0;
-  }
-  .logo-text{display:flex;flex-direction:column;line-height:1}
-  .logo-name{font-size:17px;font-weight:700;color:#fff;letter-spacing:.5px}
-  .logo-sub{font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px}
+/* SCROLL */
+.scroll-area{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px 14px 24px;
+}
+.inner{
+  max-width:480px;margin:0 auto;
+  display:flex;flex-direction:column;gap:12px;
+}
 
-  /* install btn in header */
-  #installBtn{
-    display:none;
-    background:var(--accent);
-    color:var(--header);
-    border:none;
-    border-radius:8px;
-    padding:7px 12px;
-    font-size:12px;
-    font-weight:600;
-    font-family:inherit;
-    cursor:pointer;
-    gap:5px;
-    align-items:center;
-  }
-  #installBtn.visible{display:flex}
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.search-card{padding:14px}
+.section-label{
+  font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;display:block;
+}
+.search-row{display:flex;gap:8px}
+#searchInput{
+  flex:1;padding:13px;font-size:16px;font-family:inherit;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:#f8fafc;color:var(--text);outline:none;transition:border .2s;
+}
+#searchInput:focus{border-color:var(--blue);background:#fff}
+.btn-ico{
+  width:50px;height:50px;flex-shrink:0;border:none;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;transition:opacity .15s;
+}
+.btn-ico:active{opacity:.7}
+.btn-search{background:var(--blue)}
+.btn-cam{background:var(--header)}
 
-  /* ===== INSTALL BANNER ===== */
-  #installBanner{
-    display:none;
-    background:linear-gradient(135deg,#0f172a,#1e3a5f);
-    color:#fff;
-    padding:12px 16px;
-    align-items:center;
-    gap:10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  #installBanner.visible{display:flex}
-  .banner-icon{font-size:28px;flex-shrink:0}
-  .banner-text{flex:1;font-size:13px;line-height:1.5}
-  .banner-text strong{display:block;font-size:14px;color:var(--accent)}
-  .banner-close{
-    background:none;border:none;color:#94a3b8;
-    font-size:20px;cursor:pointer;padding:0 4px;
-  }
+/* CAMERA */
+#cameraWrap{
+  border-radius:var(--r);overflow:hidden;
+  background:#000;display:none;
+}
+#cameraWrap.open{display:block}
+#cameraContainer{width:100%}
+.btn-cancel-cam{
+  width:100%;padding:12px;background:#334155;color:#fff;
+  border:none;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;
+}
 
-  /* ===== MAIN CONTENT ===== */
-  .main{
-    flex:1;
-    padding:14px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    max-width:480px;
-    width:100%;
-    margin:0 auto;
-  }
+/* RESULT */
+.res-header{background:var(--header);padding:14px 16px;color:#fff}
+.res-name{font-size:18px;font-weight:700;line-height:1.3}
+.res-code{font-size:12px;color:#94a3b8;margin-top:3px}
+.usage-box{
+  margin:12px 16px 0;background:#fffbeb;border:1px solid #fcd34d;
+  border-radius:9px;padding:9px 12px;font-size:13px;color:#92400e;
+  display:flex;gap:8px;align-items:flex-start;
+}
+.prices-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
+.price-chip{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.price-chip .lbl{font-size:11px;color:var(--muted);font-weight:500}
+.price-chip .val{font-size:20px;font-weight:700;margin-top:3px}
+.price-chip.single .val{color:var(--green)}
+.price-chip.wholesale .val{color:var(--blue)}
+.stock-hdr{
+  padding:8px 16px;font-size:11px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.stock-badge{
+  background:var(--header);color:#fff;
+  border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;
+}
+.stock-table{width:100%;border-collapse:collapse}
+.stock-table td{padding:10px 16px;font-size:14px;border-top:1px solid var(--border)}
+.stock-table td:last-child{text-align:left;font-weight:600}
+.wh-name{color:var(--muted)}
 
-  /* ===== SEARCH CARD ===== */
-  .search-card{
-    background:var(--surface);
-    border-radius:var(--radius);
-    padding:14px;
-    box-shadow:var(--shadow);
-  }
-  .search-label{
-    font-size:12px;font-weight:600;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.6px;
-    margin-bottom:8px;display:block;
-  }
-  .search-row{
-    display:flex;gap:8px;
-  }
-  #searchInput{
-    flex:1;
-    padding:13px 14px;
-    font-size:16px;
-    font-family:inherit;
-    border-radius:10px;
-    border:1.5px solid var(--border);
-    background:#f8fafc;
-    color:var(--text);
-    outline:none;
-    transition:border .2s;
-  }
-  #searchInput:focus{border-color:var(--accent2)}
-  .btn-icon{
-    width:50px;height:50px;
-    border:none;border-radius:10px;
-    background:var(--header);
-    color:#fff;font-size:20px;
-    cursor:pointer;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    transition:background .2s;
-  }
-  .btn-icon:active{background:#1e3a5f}
-  .btn-search{background:var(--accent2)}
-  .btn-search:active{background:#0284c7}
+/* FORM */
+.form-card{padding:16px}
+.form-title{
+  font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;
+}
+.form-fields{display:flex;flex-direction:column;gap:9px}
+.form-row{display:flex;gap:8px}
+.field{display:flex;flex-direction:column;gap:4px;flex:1}
+.field label{font-size:12px;color:var(--muted);font-weight:500}
+.field input{
+  padding:12px;font-size:15px;font-family:inherit;
+  border:1.5px solid var(--border);border-radius:9px;
+  background:#f8fafc;color:var(--text);outline:none;transition:border .2s;
+}
+.field input:focus{border-color:var(--blue);background:#fff}
+.field input[readonly]{color:var(--muted);background:#f1f5f9}
+.btn-send{
+  width:100%;padding:15px;font-size:16px;font-weight:700;font-family:inherit;
+  background:var(--green);color:#fff;border:none;border-radius:10px;
+  cursor:pointer;margin-top:4px;transition:opacity .15s;
+}
+.btn-send:active{opacity:.8}
+.btn-send:disabled{background:#94a3b8}
 
-  /* ===== CAMERA ===== */
-  #cameraContainer{
-    border-radius:var(--radius);
-    overflow:hidden;
-  }
-  #cameraContainer:not(:empty){
-    background:#000;
-    box-shadow:var(--shadow);
-  }
+/* STATES */
+.state-box{padding:36px 16px;text-align:center}
+.state-box .ico{font-size:44px;margin-bottom:10px}
+.state-box p{color:var(--muted);font-size:15px}
+.state-box.err p{color:#ef4444}
 
-  /* ===== RESULT CARD ===== */
-  .result-card{
-    background:var(--surface);
-    border-radius:var(--radius);
-    overflow:hidden;
-    box-shadow:var(--shadow);
-    animation:fadeUp .25s ease;
-  }
-  @keyframes fadeUp{
-    from{opacity:0;transform:translateY(12px)}
-    to{opacity:1;transform:translateY(0)}
-  }
-
-  .result-header{
-    background:var(--header);
-    padding:14px 16px;
-    color:#fff;
-  }
-  .result-name{font-size:18px;font-weight:700;line-height:1.3}
-  .result-code{font-size:12px;color:#94a3b8;margin-top:3px}
-
-  /* usage pill */
-  .usage-box{
-    background:rgba(245,156,10,.1);
-    border:1px solid rgba(245,156,10,.3);
-    border-radius:8px;
-    padding:8px 12px;
-    margin:12px 16px 0;
-    font-size:13px;
-    color:#92400e;
-    display:flex;gap:7px;align-items:flex-start;
-  }
-  .usage-box .icon{flex-shrink:0;font-size:15px;margin-top:1px}
-
-  .prices-row{
-    display:grid;grid-template-columns:1fr 1fr;
-    gap:8px;padding:12px 16px;
-  }
-  .price-chip{
-    background:var(--bg);
-    border-radius:10px;
-    padding:10px 12px;
-    text-align:center;
-  }
-  .price-chip .label{font-size:11px;color:var(--muted);font-weight:500}
-  .price-chip .value{font-size:19px;font-weight:700;margin-top:2px}
-  .price-chip.single .value{color:var(--green)}
-  .price-chip.whole  .value{color:var(--accent2)}
-
-  .stock-header{
-    padding:6px 16px;
-    font-size:12px;font-weight:600;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.5px;
-    border-top:1px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center;
-  }
-  .stock-total{
-    background:var(--header);
-    color:#fff;
-    border-radius:20px;
-    padding:2px 10px;
-    font-size:12px;font-weight:600;
-  }
-
-  .stock-table{width:100%;border-collapse:collapse}
-  .stock-table td{
-    padding:10px 16px;
-    font-size:14px;
-    border-top:1px solid var(--border);
-  }
-  .stock-table td:last-child{
-    text-align:left;
-    font-weight:600;
-    color:var(--text);
-  }
-  .wh-name{color:var(--muted)}
-
-  /* ===== FORM ===== */
-  .form-card{
-    background:var(--surface);
-    border-radius:var(--radius);
-    padding:16px;
-    box-shadow:var(--shadow);
-    animation:fadeUp .25s ease .1s both;
-  }
-  .form-title{
-    font-size:13px;font-weight:600;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.5px;
-    margin-bottom:12px;
-  }
-  .form-grid{display:flex;flex-direction:column;gap:9px}
-  .form-row{display:flex;gap:8px}
-
-  .field{
-    display:flex;
-    flex-direction:column;
-    flex:1;gap:4px;
-  }
-  .field label{font-size:12px;color:var(--muted);font-weight:500}
-  .field input{
-    padding:11px 12px;
-    font-size:15px;
-    font-family:inherit;
-    border:1.5px solid var(--border);
-    border-radius:9px;
-    background:#f8fafc;
-    color:var(--text);
-    outline:none;
-    transition:border .2s;
-  }
-  .field input:focus{border-color:var(--accent2);background:#fff}
-  .field input[readonly]{color:var(--muted);background:#f1f5f9}
-
-  .btn-send{
-    width:100%;
-    padding:14px;
-    font-size:16px;
-    font-weight:600;
-    font-family:inherit;
-    background:var(--green);
-    color:#fff;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    margin-top:4px;
-    transition:background .2s,transform .1s;
-  }
-  .btn-send:active{transform:scale(.98)}
-  .btn-send:disabled{background:#94a3b8}
-
-  /* ===== STATES ===== */
-  .state-box{
-    background:var(--surface);
-    border-radius:var(--radius);
-    padding:32px 16px;
-    text-align:center;
-    box-shadow:var(--shadow);
-  }
-  .state-box .ico{font-size:40px;margin-bottom:8px}
-  .state-box p{color:var(--muted);font-size:15px}
-  .state-box.err .ico{color:#ef4444}
-  .state-box.err p{color:#ef4444}
+.result-card,.form-card{animation:up .22s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<!-- ====== HEADER ====== -->
 <header class="app-header">
   <div class="logo">
     <div class="logo-icon">M</div>
     <div class="logo-text">
-      <span class="logo-name">MAWARAN</span>
+      <span class="logo-name">MAWARAN CO</span>
       <span class="logo-sub">Inventory Store</span>
     </div>
   </div>
   <button id="installBtn" onclick="triggerInstall()">⬇ تثبيت</button>
 </header>
 
-<!-- ====== INSTALL BANNER (iOS) ====== -->
-<div id="installBanner">
-  <div class="banner-icon">📲</div>
-  <div class="banner-text">
+<div id="iosBanner">
+  <div style="font-size:26px;flex-shrink:0">📲</div>
+  <div class="ios-text">
     <strong>تثبيت التطبيق</strong>
-    اضغط <strong>Share ↑</strong> ثم <strong>"Add to Home Screen"</strong> لتثبيته كتطبيق
+    اضغط <strong>Share ↑</strong> ثم <strong>"Add to Home Screen"</strong>
   </div>
-  <button class="banner-close" onclick="dismissBanner()">✕</button>
+  <button class="ios-close" onclick="closeBanner()">✕</button>
 </div>
 
-<!-- ====== MAIN ====== -->
-<main class="main">
+<div class="scroll-area">
+<div class="inner">
 
-  <!-- Search -->
-  <div class="search-card">
-    <span class="search-label">🔎 بحث بالرمز أو الباركود</span>
+  <div class="card search-card">
+    <span class="section-label">🔎 بحث بالرمز أو الباركود</span>
     <div class="search-row">
       <input id="searchInput" type="text" placeholder="أدخل الرمز...">
-      <button class="btn-icon btn-search" id="searchButton" title="بحث">🔍</button>
-      <button class="btn-icon" id="scanButton" title="كاميرا">📷</button>
+      <button class="btn-ico btn-search" id="searchBtn">🔍</button>
+      <button class="btn-ico btn-cam"    id="camBtn">📷</button>
     </div>
   </div>
 
-  <!-- Camera -->
-  <div id="cameraContainer"></div>
+  <div id="cameraWrap" class="card">
+    <div id="cameraContainer"></div>
+    <button class="btn-cancel-cam" onclick="stopCamera()">✕ إلغاء الكاميرا</button>
+  </div>
 
-  <!-- Result -->
   <div id="result"></div>
 
-</main>
+</div>
+</div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbwnbBlthWzZNykVVVMWMTiy7CITXXDBc7z31QIsoEPRZ-9tFfXHBh04uEvWqncnW7KH/exec";
+/* ══ PWA Manifest (blob) ══ */
+(function(){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="96" fill="#0f172a"/>
+    <text x="256" y="310" text-anchor="middle" font-size="280"
+          font-family="Arial Black" font-weight="900" fill="#f59c0a">M</text>
+  </svg>`;
+  const icon = "data:image/svg+xml;base64," + btoa(svg);
+  const manifest = JSON.stringify({
+    name:"MAWARAN Store", short_name:"MAWARAN",
+    description:"نظام بحث المخزون",
+    start_url:"./", scope:"./",
+    display:"standalone", orientation:"portrait",
+    background_color:"#0f172a", theme_color:"#0f172a",
+    icons:[
+      {src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
+      {src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}
+    ]
+  });
+  const blob = new Blob([manifest],{type:"application/manifest+json"});
+  document.getElementById("manifestLink").href = URL.createObjectURL(blob);
+})();
 
-const input      = document.getElementById("searchInput");
-const resultDiv  = document.getElementById("result");
-let html5QrCode;
-let isSending    = false;
+/* ══ Service Worker (blob) ══ */
+if("serviceWorker" in navigator){
+  const code = `
+    const V="mawaran-v1";
+    self.addEventListener("install",()=>self.skipWaiting());
+    self.addEventListener("activate",e=>e.waitUntil(clients.claim()));
+    self.addEventListener("fetch",e=>{
+      if(e.request.method!=="GET")return;
+      e.respondWith(
+        caches.open(V).then(c=>
+          c.match(e.request).then(r=>
+            r||(fetch(e.request).then(nr=>{c.put(e.request,nr.clone());return nr}).catch(()=>r))
+          )
+        )
+      );
+    });`;
+  const blob = new Blob([code],{type:"application/javascript"});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+/* ══ MAIN ══ */
+const API = "https://script.google.com/macros/s/AKfycbwnbBlthWzZNykVVVMWMTiy7CITXXDBc7z31QIsoEPRZ-9tFfXHBh04uEvWqncnW7KH/exec";
+const searchInput = document.getElementById("searchInput");
+const resultDiv   = document.getElementById("result");
+const cameraWrap  = document.getElementById("cameraWrap");
+let scanner = null;
+let isSending = false;
 let deferredPrompt = null;
 
-/* ── PWA install logic ── */
-window.addEventListener("beforeinstallprompt", e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById("installBtn").classList.add("visible");
+/* Install */
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault(); deferredPrompt=e;
+  document.getElementById("installBtn").classList.add("show");
 });
-
+window.addEventListener("appinstalled",()=>{
+  deferredPrompt=null;
+  document.getElementById("installBtn").classList.remove("show");
+});
 function triggerInstall(){
   if(!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
-    deferredPrompt = null;
-    document.getElementById("installBtn").classList.remove("visible");
+  deferredPrompt.userChoice.then(()=>{
+    deferredPrompt=null;
+    document.getElementById("installBtn").classList.remove("show");
   });
 }
 
-// iOS: show banner if not already installed
-const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone = window.navigator.standalone;
-if(isIOS && !isStandalone && !sessionStorage.getItem("bannerDismissed")){
-  document.getElementById("installBanner").classList.add("visible");
-}
-function dismissBanner(){
-  document.getElementById("installBanner").classList.remove("visible");
-  sessionStorage.setItem("bannerDismissed","1");
+/* iOS banner */
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isStandalone = navigator.standalone===true
+  || window.matchMedia("(display-mode:standalone)").matches;
+if(isIOS && !isStandalone && !sessionStorage.bannerDone)
+  document.getElementById("iosBanner").classList.add("show");
+function closeBanner(){
+  document.getElementById("iosBanner").classList.remove("show");
+  sessionStorage.bannerDone="1";
 }
 
-/* ── Focus without keyboard ── */
+/* Focus */
 function focusNoKB(){
-  input.setAttribute("readonly","true");
-  input.focus();
-  setTimeout(()=>input.removeAttribute("readonly"),50);
+  searchInput.setAttribute("readonly","true");
+  searchInput.focus();
+  setTimeout(()=>searchInput.removeAttribute("readonly"),60);
 }
-window.onload = focusNoKB;
+window.onload=focusNoKB;
+
+/* Events */
+searchInput.addEventListener("keydown",e=>{ if(e.key==="Enter") doSearch(); });
+document.getElementById("searchBtn").onclick=doSearch;
+document.getElementById("camBtn").onclick=openCamera;
+function doSearch(){ searchStock(searchInput.value.trim()); }
 
 /* ── Search ── */
 async function searchStock(code){
   if(!code) return;
-  resultDiv.innerHTML = `
-    <div class="state-box">
-      <div class="ico">⏳</div>
-      <p>جاري البحث...</p>
-    </div>`;
-
+  stopCamera();
+  resultDiv.innerHTML=`<div class="card"><div class="state-box"><div class="ico">⏳</div><p>جاري البحث...</p></div></div>`;
   try{
-    const res  = await fetch(`${API}?code=${encodeURIComponent(code)}`);
-    const data = await res.json();
-
-    if(!data || !data.items || !data.items.length){
-      resultDiv.innerHTML = `
-        <div class="state-box err">
-          <div class="ico">❌</div>
-          <p>لا توجد بيانات لهذا الرمز</p>
-        </div>`;
-      resetInput();
-      return;
+    const res=await fetch(`${API}?code=${encodeURIComponent(code)}`);
+    const data=await res.json();
+    if(!data?.items?.length){
+      resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">❌</div><p>لا توجد بيانات</p></div></div>`;
+      resetInput(); return;
     }
-
-    let total = 0;
-    data.items.forEach(i => total += Number(i.balance)||0);
-
-    /* prices */
-    let html = `
-      <div class="result-card">
-        <div class="result-header">
-          <div class="result-name">${data.name}</div>
-          <div class="result-code">رمز: ${code.toUpperCase()}</div>
-        </div>`;
-
-    /* usage */
-    if(data.usage){
-      html += `
-        <div class="usage-box">
-          <span class="icon">📋</span>
-          <span>${data.usage}</span>
-        </div>`;
-    }
-
-    html += `
-        <div class="prices-row">
-          <div class="price-chip single">
-            <div class="label">سعر المفرد</div>
-            <div class="value">${data.price_single} $</div>
-          </div>
-          <div class="price-chip whole">
-            <div class="label">آخر سعر</div>
-            <div class="value">${data.price_wholesale} $</div>
-          </div>
-        </div>
-
-        <div class="stock-header">
-          <span>المستودعات</span>
-          <span class="stock-total">📦 ${total}</span>
-        </div>
-        <table class="stock-table">`;
-
-    data.items.forEach(i=>{
-      html += `<tr>
-        <td class="wh-name">${i.warehouse}</td>
-        <td>${i.balance}</td>
-      </tr>`;
-    });
-
-    html += `</table></div>
-
-    <div class="form-card">
+    let total=0;
+    data.items.forEach(i=>total+=Number(i.balance)||0);
+    let html=`<div class="card result-card">
+      <div class="res-header">
+        <div class="res-name">${data.name}</div>
+        <div class="res-code">رمز: ${code.toUpperCase()}</div>
+      </div>`;
+    if(data.usage) html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
+    html+=`<div class="prices-row">
+        <div class="price-chip single"><div class="lbl">سعر المفرد</div><div class="val">${data.price_single} $</div></div>
+        <div class="price-chip wholesale"><div class="lbl">آخر سعر</div><div class="val">${data.price_wholesale} $</div></div>
+      </div>
+      <div class="stock-hdr"><span>المستودعات</span><span class="stock-badge">📦 ${total}</span></div>
+      <table class="stock-table">`;
+    data.items.forEach(i=>{html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;});
+    html+=`</table></div>
+    <div class="card form-card">
       <div class="form-title">📤 إضافة حركة</div>
-      <div class="form-grid">
-        <div class="field">
-          <label>الرمز</label>
-          <input id="f_code" value="${data.form_code}" readonly>
-        </div>
+      <div class="form-fields">
+        <div class="field"><label>الرمز</label><input id="f_code" value="${data.form_code}" readonly></div>
         <div class="form-row">
-          <div class="field">
-            <label>الكمية</label>
-            <input id="f_qty" type="number" inputmode="numeric" placeholder="0">
-          </div>
-          <div class="field">
-            <label>السعر</label>
-            <input id="f_price" type="number" inputmode="decimal" placeholder="0.00">
-          </div>
+          <div class="field"><label>الكمية</label><input id="f_qty" type="number" inputmode="numeric" placeholder="0"></div>
+          <div class="field"><label>السعر</label><input id="f_price" type="number" inputmode="decimal" placeholder="0.00"></div>
         </div>
         <button class="btn-send" onclick="sendForm(event)">📤 إرسال</button>
       </div>
     </div>`;
-
-    resultDiv.innerHTML = html;
+    resultDiv.innerHTML=html;
     resetInput();
-
   }catch(err){
-    resultDiv.innerHTML = `
-      <div class="state-box err">
-        <div class="ico">⚠️</div>
-        <p>خطأ في الاتصال</p>
-      </div>`;
+    resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">⚠️</div><p>خطأ في الاتصال</p></div></div>`;
     resetInput();
   }
 }
 
-function resetInput(){
-  input.value = "";
-  setTimeout(focusNoKB, 30);
-}
+function resetInput(){ searchInput.value=""; setTimeout(focusNoKB,40); }
+function resetAll(){ resultDiv.innerHTML=""; searchInput.value=""; stopCamera(); setTimeout(focusNoKB,100); }
 
-function resetAll(){
-  resultDiv.innerHTML = "";
-  input.value = "";
-  if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} }
-  document.getElementById("cameraContainer").innerHTML = "";
-  setTimeout(focusNoKB, 100);
-}
+/* ── Camera (robust 3-strategy) ── */
+async function openCamera(){
+  await stopCamera();
+  cameraWrap.classList.add("open");
+  scanner = new Html5Qrcode("cameraContainer");
+  const cfg = { fps:12, qrbox:{width:230,height:230}, aspectRatio:1.0 };
+  const onScan = txt=>{ stopCamera(); searchStock(txt); };
 
-/* ── Events ── */
-input.addEventListener("keydown", e=>{
-  if(e.key==="Enter") searchStock(input.value.trim());
-});
-document.getElementById("searchButton").onclick = ()=> searchStock(input.value.trim());
+  /* 1. facingMode:"environment" */
+  try{ await scanner.start({facingMode:"environment"}, cfg, onScan); return; }catch(e1){}
 
-/* ── Camera (back-facing) ── */
-document.getElementById("scanButton").onclick = startScanner;
+  /* 2. getCameras → filter by label */
+  let cams=[];
+  try{ cams = await Html5Qrcode.getCameras(); }catch(e){}
+  if(cams.length){
+    const back = cams.find(c=>/back|rear|environment|خلفي/i.test(c.label))
+                || cams[cams.length-1];
+    try{ await scanner.start(back.id, cfg, onScan); return; }catch(e2){}
 
-async function startScanner(){
-  if(html5QrCode){
-    try{ await html5QrCode.stop(); }catch(e){}
-  }
-  html5QrCode = new Html5Qrcode("cameraContainer");
-
-  try{
-    /* 1️⃣ Try back camera via facingMode constraint */
-    await html5QrCode.start(
-      { facingMode: { ideal: "environment" } },
-      { fps:12, qrbox:{ width:240, height:240 } },
-      txt => {
-        html5QrCode.stop().catch(()=>{});
-        document.getElementById("cameraContainer").innerHTML="";
-        searchStock(txt);
-      }
-    );
-  }catch(err){
-    /* 2️⃣ Fallback: list cameras and pick last one (usually back) */
-    try{
-      const cams = await Html5Qrcode.getCameras();
-      const camId = cams[cams.length-1].id; // last = rear on most phones
-      await html5QrCode.start(
-        camId,
-        { fps:12, qrbox:{ width:240, height:240 } },
-        txt => {
-          html5QrCode.stop().catch(()=>{});
-          document.getElementById("cameraContainer").innerHTML="";
-          searchStock(txt);
-        }
-      );
-    }catch(e2){
-      alert("⚠️ تعذّر فتح الكاميرا: " + e2);
+    /* 3. try every camera, last to first */
+    for(let i=cams.length-1;i>=0;i--){
+      try{ await scanner.start(cams[i].id, cfg, onScan); return; }catch(e){}
     }
   }
+
+  stopCamera();
+  alert("⚠️ تعذّر فتح الكاميرا.\nافتح الإعدادات وامنح صلاحية الكاميرا للمتصفح.");
 }
 
-/* ── Send form ── */
+async function stopCamera(){
+  cameraWrap.classList.remove("open");
+  if(scanner){
+    try{ await scanner.stop(); }catch(e){}
+    scanner=null;
+  }
+  document.getElementById("cameraContainer").innerHTML="";
+}
+
+/* ── Send ── */
 async function sendForm(e){
   if(isSending) return;
-  const qty   = document.getElementById("f_qty")?.value;
-  const price = document.getElementById("f_price")?.value;
-  const code  = document.getElementById("f_code")?.value;
-  const btn   = e.target;
-
-  if(!qty || !price){ alert("⚠️ أدخل الكمية والسعر"); return; }
-
-  isSending = true;
-  btn.disabled = true;
-  btn.innerText = "⏳ جاري الإرسال...";
-
+  const qty=document.getElementById("f_qty")?.value;
+  const price=document.getElementById("f_price")?.value;
+  const code=document.getElementById("f_code")?.value;
+  const btn=e.target;
+  if(!qty||!price){alert("⚠️ أدخل الكمية والسعر");return;}
+  isSending=true; btn.disabled=true; btn.innerText="⏳ جاري الإرسال...";
   try{
-    await fetch(API,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain"},
-      body:JSON.stringify({code,qty,price})
-    });
+    await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({code,qty,price})});
     alert("✅ تواو ده ست خوش");
     resetAll();
   }catch(err){
-    alert("❌ فشل الإرسال، حاول مجدداً");
-    btn.disabled = false;
-    btn.innerText = "📤 إرسال";
-  }finally{
-    isSending = false;
-  }
+    alert("❌ فشل الإرسال");
+    btn.disabled=false; btn.innerText="📤 إرسال";
+  }finally{ isSending=false; }
 }
 </script>
 </body>

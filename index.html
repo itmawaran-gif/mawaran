@@ -332,10 +332,15 @@ async function searchStock(code){
         <div class="res-code">Code: ${code.toUpperCase()}</div>
       </div>`;
     if(data.usage) html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
-    html+=`<div class="prices-row">
-        <div class="price-chip single"><div class="lbl">Unit Price</div><div class="val">${data.price_single} $</div></div>
-        <div class="price-chip wholesale"><div class="lbl">Last Price</div><div class="val">${data.price_wholesale} $</div></div>
-      </div>
+    html+=`<div style="padding:16px;text-align:center">
+  <div style="font-size:28px;font-weight:700;color:var(--green)">
+    ${data.price_single} $
+  </div>
+
+  <div style="font-size:12px;color:var(--muted);margin-top:6px">
+    Last Price: ${data.price_wholesale} $
+  </div>
+</div>
       <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
       <table class="stock-table">`;
     data.items.forEach(i=>{html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;});

@@ -337,10 +337,6 @@ async function searchStock(code){
     ${data.price_single} $
   </div>
 
-  <div style="font-size:12px;color:var(--muted);margin-top:6px">
-    Last Price: ${data.price_wholesale} $
-  </div>
-</div>
       <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
       <table class="stock-table">`;
     data.items.forEach(i=>{html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;});
@@ -352,7 +348,10 @@ async function searchStock(code){
         <div class="field"><label>Quantity</label><input id="f_qty" type="number" inputmode="numeric" placeholder="0"></div>
         <div class="field"><label>Price</label><input id="f_price" type="number" inputmode="decimal" placeholder="0.00"></div>
         <button class="btn-send" onclick="sendForm(event)">📤 Send</button>
-      </div>
+
+<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--muted)">
+  Last Price: <span style="color:var(--blue)">${data.price_wholesale} $</span>
+</div>
     </div>`;
     resultDiv.innerHTML=html;
     resetInput();

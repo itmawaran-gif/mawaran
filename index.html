@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAWARAN">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" id="manifestLink">
 <title>MAWARAN Store</title>
@@ -200,16 +201,13 @@ body{
     <div class="logo-text">
       <span class="logo-name">MAWARAN CO</span>
       <span class="logo-sub">Inventory Store</span>
-    </div>
-  </div>
-  <button id="installBtn" onclick="triggerInstall()">⬇ تثبيت</button>
 </header>
 
 <div id="iosBanner">
   <div style="font-size:26px;flex-shrink:0">📲</div>
   <div class="ios-text">
-    <strong>تثبيت التطبيق</strong>
-    اضغط <strong>Share ↑</strong> ثم <strong>"Add to Home Screen"</strong>
+    <strong>Install the App</strong>
+    Tap <strong>Share ↑</strong> then select <strong>"Add to Home Screen"</strong>
   </div>
   <button class="ios-close" onclick="closeBanner()">✕</button>
 </div>
@@ -218,17 +216,17 @@ body{
 <div class="inner">
 
   <div class="card search-card">
-    <span class="section-label">🔎 بحث بالرمز أو الباركود</span>
-    <input id="searchInput" type="text" placeholder="أدخل الرمز...">
+    <span class="section-label">🔎 Search by code or barcode</span>
+    <input id="searchInput" type="text" placeholder="Enter code...">
     <div class="search-btns">
-      <button class="btn-ico btn-search" id="searchBtn">🔍 بحث</button>
-      <button class="btn-ico btn-cam"    id="camBtn">📷 كاميرا</button>
+      <button class="btn-ico btn-search" id="searchBtn">🔍 Search</button>
+      <button class="btn-ico btn-cam"    id="camBtn">📷 Camera</button>
     </div>
   </div>
 
   <div id="cameraWrap" class="card">
     <div id="cameraContainer"></div>
-    <button class="btn-cancel-cam" onclick="stopCamera()">✕ إلغاء الكاميرا</button>
+    <button class="btn-cancel-cam" onclick="stopCamera()">✕ Cancel Camera</button>
   </div>
 
   <div id="result"></div>
@@ -239,21 +237,15 @@ body{
 <script>
 /* ══ PWA Manifest (blob) ══ */
 (function(){
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-    <rect width="512" height="512" rx="96" fill="#0f172a"/>
-    <text x="256" y="310" text-anchor="middle" font-size="280"
-          font-family="Arial Black" font-weight="900" fill="#f59c0a">M</text>
-  </svg>`;
-  const icon = "data:image/svg+xml;base64," + btoa(svg);
   const manifest = JSON.stringify({
     name:"MAWARAN Store", short_name:"MAWARAN",
-    description:"نظام بحث المخزون",
+    description:"Inventory Search System",
     start_url:"./", scope:"./",
     display:"standalone", orientation:"portrait",
     background_color:"#0f172a", theme_color:"#0f172a",
     icons:[
-      {src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
-      {src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}
+      {src:"icon.png", sizes:"192x192", type:"image/png", purpose:"any maskable"},
+      {src:"icon.png", sizes:"512x512", type:"image/png", purpose:"any maskable"}
     ]
   });
   const blob = new Blob([manifest],{type:"application/manifest+json"});
@@ -281,7 +273,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbyJJavUv9zhHmHjKuYKlWMkSZbCmn3d8oJKNvGeD9gQuSOIx-ETXATOXUFzJH5MN8364w/exec";
+const API = "https://script.google.com/macros/s/AKfycbzMjnYCz70T4LksE6A-cye7kNFq9gG2OygB1mN8iVDcks7loNdmQmt1YClX5IYk7JZptA/exec";
 const searchInput = document.getElementById("searchInput");
 const resultDiv   = document.getElementById("result");
 const cameraWrap  = document.getElementById("cameraWrap");
@@ -336,12 +328,12 @@ function doSearch(){ searchStock(searchInput.value.trim()); }
 async function searchStock(code){
   if(!code) return;
   stopCamera();
-  resultDiv.innerHTML=`<div class="card"><div class="state-box"><div class="ico">⏳</div><p>جاري البحث...</p></div></div>`;
+  resultDiv.innerHTML=`<div class="card"><div class="state-box"><div class="ico">⏳</div><p>Searching...</p></div></div>`;
   try{
     const res=await fetch(`${API}?code=${encodeURIComponent(code)}`);
     const data=await res.json();
     if(!data?.items?.length){
-      resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">❌</div><p>لا توجد بيانات</p></div></div>`;
+      resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">❌</div><p>No data found for this code</p></div></div>`;
       resetInput(); return;
     }
     let total=0;
@@ -349,30 +341,30 @@ async function searchStock(code){
     let html=`<div class="card result-card">
       <div class="res-header">
         <div class="res-name">${data.name}</div>
-        <div class="res-code">رمز: ${code.toUpperCase()}</div>
+        <div class="res-code">Code: ${code.toUpperCase()}</div>
       </div>`;
     if(data.usage) html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
     html+=`<div class="prices-row">
-        <div class="price-chip single"><div class="lbl">سعر المفرد</div><div class="val">${data.price_single} $</div></div>
-        <div class="price-chip wholesale"><div class="lbl">آخر سعر</div><div class="val">${data.price_wholesale} $</div></div>
+        <div class="price-chip single"><div class="lbl">Unit Price</div><div class="val">${data.price_single} $</div></div>
+        <div class="price-chip wholesale"><div class="lbl">Last Price</div><div class="val">${data.price_wholesale} $</div></div>
       </div>
-      <div class="stock-hdr"><span>المستودعات</span><span class="stock-badge">📦 ${total}</span></div>
+      <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
       <table class="stock-table">`;
     data.items.forEach(i=>{html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;});
     html+=`</table></div>
     <div class="card form-card">
-      <div class="form-title">📤 إضافة حركة</div>
+      <div class="form-title">📤 Add Movement</div>
       <div class="form-fields">
-        <div class="field"><label>الرمز</label><input id="f_code" value="${data.form_code}" readonly></div>
-        <div class="field"><label>الكمية</label><input id="f_qty" type="number" inputmode="numeric" placeholder="0"></div>
-        <div class="field"><label>السعر</label><input id="f_price" type="number" inputmode="decimal" placeholder="0.00"></div>
-        <button class="btn-send" onclick="sendForm(event)">📤 إرسال</button>
+        <div class="field"><label>Code</label><input id="f_code" value="${data.form_code}" readonly></div>
+        <div class="field"><label>Quantity</label><input id="f_qty" type="number" inputmode="numeric" placeholder="0"></div>
+        <div class="field"><label>Price</label><input id="f_price" type="number" inputmode="decimal" placeholder="0.00"></div>
+        <button class="btn-send" onclick="sendForm(event)">📤 Send</button>
       </div>
     </div>`;
     resultDiv.innerHTML=html;
     resetInput();
   }catch(err){
-    resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">⚠️</div><p>خطأ في الاتصال</p></div></div>`;
+    resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">⚠️</div><p>Connection error</p></div></div>`;
     resetInput();
   }
 }
@@ -406,7 +398,7 @@ async function openCamera(){
   }
 
   stopCamera();
-  alert("⚠️ تعذّر فتح الكاميرا.\nافتح الإعدادات وامنح صلاحية الكاميرا للمتصفح.");
+  alert("⚠️ Could not open camera.\nPlease allow camera permission in your browser settings.");
 }
 
 async function stopCamera(){
@@ -425,15 +417,15 @@ async function sendForm(e){
   const price=document.getElementById("f_price")?.value;
   const code=document.getElementById("f_code")?.value;
   const btn=e.target;
-  if(!qty||!price){alert("⚠️ أدخل الكمية والسعر");return;}
-  isSending=true; btn.disabled=true; btn.innerText="⏳ جاري الإرسال...";
+  if(!qty||!price){alert("⚠️ Please enter quantity and price");return;}
+  isSending=true; btn.disabled=true; btn.innerText="⏳ Sending...";
   try{
     await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({code,qty,price})});
-    alert("✅ تواو ده ست خوش");
+    alert("✅ Sent successfully!");
     resetAll();
   }catch(err){
-    alert("❌ فشل الإرسال");
-    btn.disabled=false; btn.innerText="📤 إرسال";
+    alert("❌ Send failed, please try again");
+    btn.disabled=false; btn.innerText="📤 Send";
   }finally{ isSending=false; }
 }
 </script>

@@ -114,10 +114,12 @@ body{
 
 /* CAMERA */
 #cameraWrap{
-  border-radius:var(--r);overflow:hidden;
-  background:#000;display:none;
+  border-radius:var(--r);
+  overflow:hidden;
+  background:#000;
+  display:none !important;
 }
-#cameraWrap.open{display:block}
+#cameraWrap.open{display:block !important}
 #cameraContainer{width:100%}
 .btn-cancel-cam{
   width:100%;padding:12px;background:#334155;color:#fff;
@@ -224,7 +226,7 @@ body{
     </div>
   </div>
 
-  <div id="cameraWrap" class="card" style="overflow:hidden;background:#000;display:none">
+  <div id="cameraWrap" class="card">
     <div id="cameraContainer"></div>
     <button class="btn-cancel-cam" onclick="stopCamera()">✕ إلغاء الكاميرا</button>
   </div>
@@ -279,7 +281,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbwnbBlthWzZNykVVVMWMTiy7CITXXDBc7z31QIsoEPRZ-9tFfXHBh04uEvWqncnW7KH/exec";
+const API = "https://script.google.com/macros/s/AKfycbzMjnYCz70T4LksE6A-cye7kNFq9gG2OygB1mN8iVDcks7loNdmQmt1YClX5IYk7JZptA/exec";
 const searchInput = document.getElementById("searchInput");
 const resultDiv   = document.getElementById("result");
 const cameraWrap  = document.getElementById("cameraWrap");

@@ -239,22 +239,6 @@ body{
 </div>
 
 <script>
-/* ══ PWA Manifest (blob) ══ */
-(function(){
-  const manifest = JSON.stringify({
-    name:"MAWARAN Store", short_name:"MAWARAN",
-    description:"Inventory Search System",
-    start_url:"./", scope:"./",
-    display:"standalone", orientation:"portrait",
-    background_color:"#0f172a", theme_color:"#0f172a",
-    icons:[
-      {src:"icon.png", sizes:"192x192", type:"image/png", purpose:"any maskable"},
-      {src:"icon.png", sizes:"512x512", type:"image/png", purpose:"any maskable"}
-    ]
-  });
-  const blob = new Blob([manifest],{type:"application/manifest+json"});
-  document.getElementById("manifestLink").href = URL.createObjectURL(blob);
-})();
 
 /* ══ Service Worker (blob) ══ */
 if("serviceWorker" in navigator){

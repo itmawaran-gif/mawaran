@@ -250,6 +250,7 @@ body{
 <body>
 
 <header class="app-header">
+  <button class="btn-ico btn-search" style="background:#f59c0a;font-size:14px" onclick="openLowStock()">⚠️ Low Stock</button>
   <div class="logo">
     <div class="logo-icon">M</div>
     <div class="logo-text">
@@ -320,7 +321,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbwqZcB8A9t0eB562g1NJmqLLzLqafD1FLFdXPC6Bsari5R18wQAFd99v7m7W9jdsZ5Kgw/exec";
+const API = "https://script.google.com/macros/s/AKfycbxf8ArrKyC5D7G77uLM2QrgnjcZAcwxRaglD-iIcTLBWC13393FTed3T7Yq7dSnfUNb9A/exec";
 const searchInput  = document.getElementById("searchInput");
 const suggestDrop  = document.getElementById("suggestDrop");
 const resultDiv    = document.getElementById("result");
@@ -583,6 +584,9 @@ async function sendForm(e){
     alert("❌ Send failed, please try again");
     btn.disabled=false; btn.innerText="📤 Send";
   }finally{ isSending=false; }
+}
+  function openLowStock(){
+  window.open("lowstock.html", "_blank");
 }
 </script>
 </body>

@@ -250,7 +250,6 @@ body{
 <body>
 
 <header class="app-header">
-  <button class="btn-ico btn-search" style="background:#f59c0a;font-size:14px" onclick="openLowStock()">⚠️ Low Stock</button>
   <div class="logo">
     <div class="logo-icon">M</div>
     <div class="logo-text">
@@ -584,9 +583,6 @@ async function sendForm(e){
     alert("❌ Send failed, please try again");
     btn.disabled=false; btn.innerText="📤 Send";
   }finally{ isSending=false; }
-}
-  function openLowStock(){
-  window.open("lowstock.html", "_blank");
 }
 </script>
 </body>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Low Stock</title>
+<style>
+body{font-family:Arial,sans-serif;background:#111;color:#fff;padding:20px}
+.item{padding:15px;border-bottom:1px solid #333;cursor:pointer}
+.item:hover{background:#222}
+.small{color:#aaa;font-size:12px}
+.red{color:#ff4d4d;font-weight:700}
+</style>
+</head>
+<body>
+<h2>⚠️ Low Stock (Showroom < 8)</h2>
+<div id="list"></div>
+<script>
+const API = "PUT_YOUR_WEB_APP_URL_HERE"; // رابط Web App الخاص بك
+async function load(){
+  const res = await fetch(API+"?action=lowstock");
+  const data = await res.json();
+  let html="";
+  data.forEach(p=>{
+    html+=`<div class="item" onclick="openProduct('${p.code}')">
+      <b>${p.name}</b><br>
+      <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span> | Others: ${p.other}</span>
+    </div>`;
+  });
+  document.getElementById("list").innerHTML=html;
+}
+function openProduct(code){
+  window.open("index.html?code="+code, "_blank");
+}
+load();
+</script>
+</body>
+</html>

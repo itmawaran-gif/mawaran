@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نواقص Showroom Store</title>
+  <style>
+    /* تصميم متجاوب (Mobile-First) */
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 15px;
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 1.5em;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      cursor: pointer;
+      border: 1px solid #e1e4e8;
+      transition: background-color 0.2s;
+    }
+    .card:active { background-color: #f8f9fa; }
+    
+    .product-header {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+    .product-code {
+      font-size: 0.85em;
+      color: #666;
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    
+    .summary-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95em;
+      padding-top: 8px;
+      border-top: 1px dashed #eee;
+    }
+    .showroom-alert {
+      color: #d32f2f; /* لون أحمر للتنبيه */
+      font-weight: bold;
+    }
+    .other-stores {
+      color: #2e7d32;
+    }
+
+    /* قسم التفاصيل المخفي افتراضياً */
+    .details-panel {
+      display: none;
+      margin-top: 12px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 0.9em;
+      border-bottom: 1px solid #eaeaea;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    
+    .loading { text-align: center; padding: 20px; font-weight: bold; color: #555; }
+  </style>
+</head>
+<body>
+
+  <h2>نواقص Showroom Store</h2>
+  <div id="data-container">
+    <div class="loading">جاري جلب البيانات من المستودع...</div>
+  </div>
+
+  <script>
+    // ضع رابط الـ API الخاص بـ Apps Script هنا
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwUnlK8Iv72faT1AxlokQXWyIWGNdzwAMuxBvCZRIrcQ9dTayTe_PZI4Ty8tCbeTOzD5A/exec';
+
+    async function fetchData() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        renderProducts(data);
+      } catch (error) {
+        document.getElementById('data-container').innerHTML = 
+          '<div class="loading" style="color:red;">حدث خطأ أثناء تحميل البيانات. يرجى التأكد من الرابط.</div>';
+      }
+    }
+
+    function renderProducts(products) {
+      const container = document.getElementById('data-container');
+      container.innerHTML = ''; // مسح علامة التحميل
+
+      if (products.length === 0) {
+        container.innerHTML = '<div class="loading">لا توجد منتجات عددها أقل من 8 في المعرض حالياً.</div>';
+        return;
+      }
+
+      products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        // إنشاء قائمة تفاصيل المستودعات
+        const detailsHtml = product.details.map(d => 
+          `<div class="detail-row">
+            <span>${d.store}</span>
+            <strong>${d.qty} قطع</strong>
+          </div>`
+        ).join('');
+
+        card.innerHTML = `
+          <div class="product-header">
+            ${product.name} <span class="product-code">رمز: ${product.code}</span>
+          </div>
+          <div class="summary-stats">
+            <span class="showroom-alert">Showroom: ${product.showroomQty} قطع</span>
+            <span class="other-stores">إجمالي الباقي: ${product.otherQty} قطع</span>
+          </div>
+          <div class="details-panel">
+            <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">تفاصيل التوزيع:</div>
+            ${detailsHtml}
+          </div>
+        `;
+
+        // إضافة وظيفة النقر (Toggle) لفتح وإغلاق التفاصيل
+        card.addEventListener('click', function() {
+          const panel = this.querySelector('.details-panel');
+          if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+          } else {
+            panel.style.display = 'block';
+          }
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    // تشغيل الدالة عند تحميل الصفحة
+    fetchData();
+  </script>
+
+</body>
+</html>

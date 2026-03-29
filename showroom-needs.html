@@ -87,73 +87,73 @@
     <div class="loading">جاري جلب البيانات من المستودع...</div>
   </div>
 
-  <script>
-    // ضع رابط الـ API الخاص بـ Apps Script هنا
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwUnlK8Iv72faT1AxlokQXWyIWGNdzwAMuxBvCZRIrcQ9dTayTe_PZI4Ty8tCbeTOzD5A/exec';
+ <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbznOt3hJ28d-zN3VtaITfp6AWW5EzhUa49y3LVoNvbpDhp9ceCrKpr3wZAdYMvAilA/exec';
 
     async function fetchData() {
       try {
         const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         renderProducts(data);
       } catch (error) {
+        console.error("Error:", error);
         document.getElementById('data-container').innerHTML = 
-          '<div class="loading" style="color:red;">حدث خطأ أثناء تحميل البيانات. يرجى التأكد من الرابط.</div>';
+          `<div class="loading" style="color:red;">
+            حدث خطأ في الاتصال.<br>
+            <small>تأكد من عمل Deploy كـ Anyone وتحديث الرابط.</small>
+          </div>`;
       }
     }
 
     function renderProducts(products) {
       const container = document.getElementById('data-container');
-      container.innerHTML = ''; // مسح علامة التحميل
+      container.innerHTML = ''; 
 
       if (products.length === 0) {
-        container.innerHTML = '<div class="loading">لا توجد منتجات عددها أقل من 8 في المعرض حالياً.</div>';
+        container.innerHTML = '<div class="loading">جميع المنتجات متوفرة (أكثر من 8 قطع) في Showroom.</div>';
         return;
       }
 
       products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'card';
-
-        // إنشاء قائمة تفاصيل المستودعات
-        const detailsHtml = product.details.map(d => 
-          `<div class="detail-row">
-            <span>${d.store}</span>
-            <strong>${d.qty} قطع</strong>
-          </div>`
-        ).join('');
+        
+        // ترتيب التفاصيل ليظهر Showroom أولاً ثم البقية
+        const detailsHtml = product.details
+          .sort((a, b) => (a.store === "Showroom Store" ? -1 : 1))
+          .map(d => `
+            <div class="detail-row" style="${d.store === 'Showroom Store' ? 'color: #d32f2f; font-weight: bold;' : ''}">
+              <span>${d.store}</span>
+              <strong>${d.qty} قطع</strong>
+            </div>
+          `).join('');
 
         card.innerHTML = `
           <div class="product-header">
-            ${product.name} <span class="product-code">رمز: ${product.code}</span>
+            ${product.name}
+            <div style="font-size: 0.7em; color: #7f8c8d;">الرمز: ${product.code} | باركود: ${product.barcode}</div>
           </div>
           <div class="summary-stats">
-            <span class="showroom-alert">Showroom: ${product.showroomQty} قطع</span>
-            <span class="other-stores">إجمالي الباقي: ${product.otherQty} قطع</span>
+            <span class="showroom-alert">Showroom: ${product.showroomQty}</span>
+            <span class="other-stores">باقي المستودعات: ${product.otherQty}</span>
           </div>
           <div class="details-panel">
-            <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">تفاصيل التوزيع:</div>
+            <div style="font-size: 0.8em; color: #888; border-bottom: 1px solid #ddd; margin-bottom: 5px;">توزيع المخزون:</div>
             ${detailsHtml}
           </div>
         `;
 
-        // إضافة وظيفة النقر (Toggle) لفتح وإغلاق التفاصيل
-        card.addEventListener('click', function() {
+        card.onclick = function() {
           const panel = this.querySelector('.details-panel');
-          if (panel.style.display === 'block') {
-            panel.style.display = 'none';
-          } else {
-            panel.style.display = 'block';
-          }
-        });
+          panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        };
 
         container.appendChild(card);
       });
     }
-
-    // تشغيل الدالة عند تحميل الصفحة
     fetchData();
-  </script>
+</script>
 
 </body>
 </html>

@@ -6,76 +6,47 @@
 <title>Low Stock</title>
 <style>
 body{font-family:Arial,sans-serif;background:#111;color:#fff;padding:20px}
-.item{padding:15px;border-bottom:1px solid #333;cursor:pointer;position:relative}
+.item{padding:15px;border-bottom:1px solid #333;margin-bottom:5px}
 .item:hover{background:#222}
 .small{color:#aaa;font-size:12px}
 .red{color:#ff4d4d;font-weight:700}
-.details{margin-top:10px;padding:10px;background:#222;border-radius:5px;font-size:13px}
-.loading{color:#aaa;font-size:14px;margin-bottom:10px}
-table{width:100%;border-collapse:collapse;color:#fff}
-th, td{padding:5px;text-align:left;border-bottom:1px solid #333}
+.loading{color:#0af;font-size:14px;margin-bottom:10px}
 </style>
 </head>
 <body>
 <h2>⚠️ Low Stock (Showroom < 8)</h2>
-<div id="list"><div class="loading">⏳ loading...</div></div>
+<div id="list" class="loading">جارٍ التحميل...</div>
+
 <script>
-const API = "https://script.google.com/macros/s/AKfycbduxBb3Zcf5aQYw5b7BRKYPvqp-JgGUDM214nnVeG1nSwYsWiAZGIF-e9Ipyokoc-xCw/exec";
+const API = "https://script.google.com/macros/s/AKfycbyY7CVhKqR4br_llNb3ipClNlGv6iwtXAzMDOy3in9-CgTIw_zg6HyGC8Hgp0ZcG-NY1A/exec"; // ضع رابط الـ Web App الجديد هنا
 
 async function load(){
   const listDiv = document.getElementById("list");
-  listDiv.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
-  
-  try {
-    const res = await fetch(API+"?action=lowstock");
+  listDiv.innerHTML = "جارٍ التحميل...";
+
+  try{
+    const res = await fetch(API);
+    if(!res.ok) throw new Error("خطأ في الاتصال بالـ API");
     const data = await res.json();
     
-    if(!data || data.length===0){
-      listDiv.innerHTML = "✅ لا توجد منتجات منخفضة المخزون";
+    if(data.length === 0){
+      listDiv.innerHTML = "لا توجد منتجات منخفضة المخزون.";
       return;
     }
 
     let html = "";
     data.forEach(p=>{
-      html += `
-      <div class="item" onclick="openProduct('${p.code}', this)">
+      html += `<div class="item">
         <b>${p.name}</b><br>
-        <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span> | Others: ${p.other}</span>
-        <div class="details" style="display:none"></div>
+        <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span></span><br>
+        <span class="small">Other Warehouses: ${p.other}</span>
       </div>`;
     });
+
     listDiv.innerHTML = html;
 
-  } catch(err){
-    listDiv.innerHTML = `❌ خطأ في الاتصال: ${err.message}`;
-  }
-}
-
-async function openProduct(code, elem){
-  const detailsDiv = elem.querySelector(".details");
-  detailsDiv.style.display="block";
-  detailsDiv.innerHTML = `⏳ جاري التحميل...`;
-
-  try {
-    const res = await fetch(API+"?code="+encodeURIComponent(code));
-    const data = await res.json();
-
-    if(!data.items || data.items.length===0){
-      detailsDiv.innerHTML = `❌ لا توجد بيانات`;
-      return;
-    }
-
-    let html = `<b>${data.name}</b> (Code: ${code})<br><br>`;
-    html += `<table>
-      <tr><th>Warehouse</th><th>Balance</th></tr>`;
-    data.items.forEach(i=>{
-      html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
-    });
-    html += `</table>`;
-    detailsDiv.innerHTML = html;
-
-  } catch(err){
-    detailsDiv.innerHTML = `❌ خطأ في الاتصال: ${err.message}`;
+  }catch(err){
+    listDiv.innerHTML = "حدث خطأ أثناء التحميل: " + err.message;
   }
 }
 

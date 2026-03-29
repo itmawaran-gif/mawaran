@@ -88,7 +88,7 @@
   </div>
 
  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbykGDKF09iUlof_iSYOAEISzhYVRFnWmZsc4N6ePapR4jK3vOUvlcQ5ORz2CdNCE3a9Bg/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwPrb7ps7_ssLvXtIUPzhkgO-lyO9IJQrea9PzGonjQXJkNyik57Om4rcnFTZnFyZJxXQ/exec';
 
     async function fetchData() {
       try {
@@ -106,24 +106,27 @@
       }
     }
 
-    function renderProducts(products) {
+function renderProducts(products) {
       const container = document.getElementById('data-container');
       container.innerHTML = ''; 
 
       if (products.length === 0) {
-        container.innerHTML = '<div class="loading">جميع المنتجات متوفرة (أكثر من 8 قطع) في Showroom.</div>';
+        container.innerHTML = '<div class="loading">لا توجد نواقص حالياً (أو لا يوجد رصيد كافٍ في المستودعات الأخرى).</div>';
         return;
       }
+
+      // --- الترتيب: من الأعلى رصيداً في المستودعات الأخرى إلى الأقل ---
+      products.sort((a, b) => b.otherQty - a.otherQty);
 
       products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'card';
         
-        // ترتيب التفاصيل ليظهر Showroom أولاً ثم البقية
+        // ترتيب تفاصيل المستودعات داخل البطاقة (الأعلى رصيداً أولاً)
         const detailsHtml = product.details
-          .sort((a, b) => (a.store === "Showroom Store" ? -1 : 1))
+          .sort((a, b) => b.qty - a.qty)
           .map(d => `
-            <div class="detail-row" style="${d.store === 'Showroom Store' ? 'color: #d32f2f; font-weight: bold;' : ''}">
+            <div class="detail-row" style="${d.store === 'Showroom Store' ? 'color: #d32f2f; font-weight: bold; background: #fff1f1;' : ''}">
               <span>${d.store}</span>
               <strong>${d.qty} قطع</strong>
             </div>
@@ -132,14 +135,18 @@
         card.innerHTML = `
           <div class="product-header">
             ${product.name}
-            <div style="font-size: 0.7em; color: #7f8c8d;">الرمز: ${product.code} | باركود: ${product.barcode}</div>
+            <div style="font-size: 0.75em; color: #555; margin-top: 4px;">
+                <span style="background:#e8f0fe; padding:2px 5px; border-radius:3px;">الرمز: ${product.code}</span>
+            </div>
           </div>
           <div class="summary-stats">
-            <span class="showroom-alert">Showroom: ${product.showroomQty}</span>
-            <span class="other-stores">باقي المستودعات: ${product.otherQty}</span>
+            <span class="showroom-alert">المعرض: ${product.showroomQty}</span>
+            <span class="other-stores" style="background: #e6ffed; padding: 2px 8px; border-radius: 12px;">
+                المتوفر للنقل: <strong>${product.otherQty}</strong>
+            </span>
           </div>
           <div class="details-panel">
-            <div style="font-size: 0.8em; color: #888; border-bottom: 1px solid #ddd; margin-bottom: 5px;">توزيع المخزون:</div>
+            <div style="font-size: 0.8em; color: #888; border-bottom: 1px solid #ddd; margin-bottom: 5px; padding-bottom: 3px;">توزيع الكميات في الفروع:</div>
             ${detailsHtml}
           </div>
         `;

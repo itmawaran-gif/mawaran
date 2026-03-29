@@ -24,18 +24,22 @@ async function load(){
   const listDiv = document.getElementById("list");
   listDiv.innerHTML = "جارٍ التحميل...";
 
-  try{
+try {
     const res = await fetch(API);
     if(!res.ok) throw new Error("خطأ في الاتصال بالـ API");
+
     const data = await res.json();
-    
-    if(data.length === 0){
+
+    // تأكد أن data مصفوفة
+    const items = Array.isArray(data) ? data : [];
+
+    if(items.length === 0){
       listDiv.innerHTML = "لا توجد منتجات منخفضة المخزون.";
       return;
     }
 
     let html = "";
-    data.forEach(p=>{
+    items.forEach(p=>{
       html += `<div class="item">
         <b>${p.name}</b><br>
         <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span></span><br>
@@ -45,9 +49,9 @@ async function load(){
 
     listDiv.innerHTML = html;
 
-  }catch(err){
+}catch(err){
     listDiv.innerHTML = "حدث خطأ أثناء التحميل: " + err.message;
-  }
+}
 }
 
 load();

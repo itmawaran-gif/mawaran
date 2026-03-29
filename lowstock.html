@@ -6,67 +6,76 @@
 <title>Low Stock</title>
 <style>
 body{font-family:Arial,sans-serif;background:#111;color:#fff;padding:20px}
-.item{padding:15px;border-bottom:1px solid #333;cursor:pointer}
+.item{padding:15px;border-bottom:1px solid #333;cursor:pointer;position:relative}
 .item:hover{background:#222}
 .small{color:#aaa;font-size:12px}
 .red{color:#ff4d4d;font-weight:700}
-.details{padding:10px;margin:10px 0 20px 0;background:#222;border-radius:5px;font-size:13px}
-.loading{padding:15px;text-align:center;color:#0ea5e9;font-weight:700}
+.details{margin-top:10px;padding:10px;background:#222;border-radius:5px;font-size:13px}
+.loading{color:#aaa;font-size:14px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;color:#fff}
+th, td{padding:5px;text-align:left;border-bottom:1px solid #333}
 </style>
 </head>
 <body>
 <h2>⚠️ Low Stock (Showroom < 8)</h2>
-<div id="list"></div>
-<div id="details"></div>
-
+<div id="list"><div class="loading">⏳ جاري التحميل...</div></div>
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxduxBb3Zcf5aQYw5b7BRKYPvqp-JgGUDM214nnVeG1nSwYsWiAZGIF-e9Ipyokoc-xCw/exec";
+const API = "https://script.google.com/macros/s/AKfycbduxBb3Zcf5aQYw5b7BRKYPvqp-JgGUDM214nnVeG1nSwYsWiAZGIF-e9Ipyokoc-xCw/exec";
 
 async function load(){
   const listDiv = document.getElementById("list");
-  listDiv.innerHTML = `<div class="loading">⏳ loading...</div>`; // رسالة تحميل
-
-  try{
+  listDiv.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+  
+  try {
     const res = await fetch(API+"?action=lowstock");
     const data = await res.json();
-    let html="";
-    data.forEach(p=>{
-      html+=`<div class="item" onclick="openProduct('${p.code}', this)">
-        <b>${p.name}</b><br>
-        <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span> | Others: ${p.other}</span>
-      </div>`;
-    });
-    listDiv.innerHTML = html;
-  }catch(err){
-    listDiv.innerHTML = `<div class="loading">⚠️ خطأ في الاتصال</div>`;
-  }
-}
-
-// عرض التفاصيل أسفل العنصر مباشرة
-async function openProduct(code, elem){
-  const detailsDiv = document.getElementById("details");
-  detailsDiv.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
-
-  try{
-    const res = await fetch(API+"?code="+encodeURIComponent(code));
-    const data = await res.json();
-    if(!data.items || !data.items.length){
-      detailsDiv.innerHTML = `<div class="loading">❌ لا توجد بيانات لهذا المنتج</div>`;
+    
+    if(!data || data.length===0){
+      listDiv.innerHTML = "✅ لا توجد منتجات منخفضة المخزون";
       return;
     }
 
-    let html = `<div class="details"><b>${data.name}</b> (Code: ${code})<br><br>`;
-    html += `<table style="width:100%;border-collapse:collapse;color:#fff">
-      <tr style="text-align:left;border-bottom:1px solid #333"><th>Warehouse</th><th>Balance</th></tr>`;
-    data.items.forEach(i=>{
-      html+=`<tr style="border-bottom:1px solid #333"><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    let html = "";
+    data.forEach(p=>{
+      html += `
+      <div class="item" onclick="openProduct('${p.code}', this)">
+        <b>${p.name}</b><br>
+        <span class="small">Code: ${p.code} | Showroom: <span class="red">${p.showroom}</span> | Others: ${p.other}</span>
+        <div class="details" style="display:none"></div>
+      </div>`;
     });
-    html += `</table></div>`;
+    listDiv.innerHTML = html;
+
+  } catch(err){
+    listDiv.innerHTML = `❌ خطأ في الاتصال: ${err.message}`;
+  }
+}
+
+async function openProduct(code, elem){
+  const detailsDiv = elem.querySelector(".details");
+  detailsDiv.style.display="block";
+  detailsDiv.innerHTML = `⏳ جاري التحميل...`;
+
+  try {
+    const res = await fetch(API+"?code="+encodeURIComponent(code));
+    const data = await res.json();
+
+    if(!data.items || data.items.length===0){
+      detailsDiv.innerHTML = `❌ لا توجد بيانات`;
+      return;
+    }
+
+    let html = `<b>${data.name}</b> (Code: ${code})<br><br>`;
+    html += `<table>
+      <tr><th>Warehouse</th><th>Balance</th></tr>`;
+    data.items.forEach(i=>{
+      html += `<tr><td>${i.warehouse}</td><td>${i.balance}</td></tr>`;
+    });
+    html += `</table>`;
     detailsDiv.innerHTML = html;
-    // Scroll to details
-    detailsDiv.scrollIntoView({behavior:"smooth"});
-  }catch(err){
-    detailsDiv.innerHTML = `<div class="loading">⚠️ خطأ في الاتصال</div>`;
+
+  } catch(err){
+    detailsDiv.innerHTML = `❌ خطأ في الاتصال: ${err.message}`;
   }
 }
 

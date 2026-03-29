@@ -24,7 +24,7 @@ const API = "https://script.google.com/macros/s/AKfycbxduxBb3Zcf5aQYw5b7BRKYPvqp
 
 async function load(){
   const listDiv = document.getElementById("list");
-  listDiv.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`; // رسالة تحميل
+  listDiv.innerHTML = `<div class="loading">⏳ loading...</div>`; // رسالة تحميل
 
   try{
     const res = await fetch(API+"?action=lowstock");

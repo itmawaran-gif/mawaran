@@ -642,7 +642,7 @@ async function saveLocation(code){
   const newVal = input.value.trim();
 
   if(!newVal){
-    alert("⚠️ الرجاء إدخال الموقع");
+    alert("⚠️ Please enter the location");
     return;
   }
 
@@ -664,7 +664,7 @@ async function saveLocation(code){
       document.getElementById("locText").innerText = newVal;
       document.getElementById("locationView").style.display = "flex";
       document.getElementById("locationEdit").style.display = "none";
-      alert("✅ تم تحديث الموقع بنجاح");
+      alert("✅ The location has been updated successfully");
     } else {
       alert("❌ لم يتم العثور على المنتج في Sheet1 (Code: " + code + ")");
     }

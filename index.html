@@ -1,699 +1,947 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MAWARAN">
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="theme-color" content="#0f172a">
-<link rel="manifest" href="manifest.json">
-<title>MAWARAN Store</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MAWARAN">
+  <meta name="theme-color" content="#0d1117">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <title>MAWARAN Store</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-<style>
-:root{
-  --bg:      #f1f5f9;
-  --surface: #ffffff;
-  --header:  #0f172a;
-  --accent:  #f59c0a;
-  --blue:    #0ea5e9;
-  --green:   #10b981;
-  --text:    #1e293b;
-  --muted:   #64748b;
-  --border:  #e2e8f0;
-  --r:       14px;
-  --sh:      0 2px 14px rgba(0,0,0,.08);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;height:-webkit-fill-available}
-body{
-  font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  min-height:-webkit-fill-available;
-  display:flex;flex-direction:column;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom);
-}
+  <style>
+    /* ─── Design Tokens ─────────────────────────────── */
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --surface2: #21262d;
+      --border:   #30363d;
+      --accent:   #f0b429;
+      --blue:     #58a6ff;
+      --green:    #3fb950;
+      --red:      #f85149;
+      --text:     #e6edf3;
+      --text2:    #c9d1d9;
+      --muted:    #8b949e;
+      --r:        12px;
+      --r-sm:     8px;
+      --sh:       0 8px 32px rgba(0,0,0,.5);
+    }
 
-/* HEADER */
-.app-header{
-  background:var(--header);
-  padding:12px 16px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:200;flex-shrink:0;
-}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{
-  width:36px;height:36px;background:var(--accent);border-radius:9px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;font-weight:800;color:var(--header);flex-shrink:0;
-}
-.logo-text{display:flex;flex-direction:column;line-height:1}
-.logo-name{font-size:16px;font-weight:700;color:#fff;letter-spacing:.4px}
-.logo-sub{font-size:11px;color:#94a3b8;margin-top:2px}
-#installBtn{
-  display:none;background:var(--accent);color:var(--header);
-  border:none;border-radius:8px;padding:7px 12px;
-  font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;
-}
-#installBtn.show{display:block}
+    /* ─── Reset & Base ──────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
 
-/* iOS BANNER */
-#iosBanner{
-  display:none;background:#1e3a5f;color:#fff;
-  padding:10px 14px;align-items:center;gap:10px;flex-shrink:0;
-}
-#iosBanner.show{display:flex}
-.ios-text{flex:1;font-size:12px;line-height:1.6;color:#cbd5e1}
-.ios-text strong{display:block;font-size:13px;color:var(--accent);margin-bottom:2px}
-.ios-close{background:none;border:none;color:#94a3b8;font-size:20px;cursor:pointer;padding:2px 6px}
+    /* ─── Header ────────────────────────────────────── */
+    .app-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      flex-shrink: 0;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--accent);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0d1117;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+    .logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: .3px; }
+    .logo-sub  { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 400; }
 
-/* SCROLL */
-.scroll-area{
-  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:12px 14px 24px;
-}
-.inner{
-  max-width:480px;margin:0 auto;
-  display:flex;flex-direction:column;gap:12px;
-}
+    #installBtn {
+      display: none;
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    #installBtn.show { display: block; }
+    #installBtn:active { opacity: .8; }
 
-/* CARDS */
-.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--sh)}
-.search-card{padding:14px}
-.section-label{
-  font-size:11px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;display:block;
-}
+    /* ─── iOS Banner ────────────────────────────────── */
+    #iosBanner {
+      display: none;
+      background: #162032;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    #iosBanner.show { display: flex; }
+    .ios-icon { font-size: 24px; flex-shrink: 0; }
+    .ios-text  { flex: 1; font-size: 12px; line-height: 1.6; color: var(--muted); }
+    .ios-text strong { display: block; font-size: 13px; color: var(--accent); margin-bottom: 2px; }
+    .ios-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 6px;
+      line-height: 1;
+      border-radius: 6px;
+      transition: background .15s;
+    }
+    .ios-close:hover { background: var(--surface2); }
 
-/* Search input wrapper – needed for dropdown positioning */
-.input-wrap{position:relative;margin-bottom:10px}
+    /* ─── Scroll & Layout ───────────────────────────── */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 14px 32px;
+    }
+    .inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
-#searchInput{
-  width:100%;padding:14px;font-size:16px;font-family:inherit;
-  border:1.5px solid var(--border);border-radius:10px;
-  background:#f8fafc;color:var(--text);outline:none;transition:border .2s;
-  display:block;
-}
-#searchInput:focus{border-color:var(--blue);background:#fff}
+    /* ─── Cards ─────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
 
-/* ── SUGGESTIONS DROPDOWN ── */
-#suggestDrop{
-  position:absolute;
-  top:calc(100% + 4px);
-  left:0;right:0;
-  background:var(--surface);
-  border:1.5px solid var(--blue);
-  border-radius:12px;
-  box-shadow:0 8px 28px rgba(14,165,233,.18);
-  z-index:500;
-  overflow:hidden;
-  display:none;
-  animation:dropIn .18s ease;
-}
-#suggestDrop.open{display:block}
-@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    /* ─── Showroom Link ─────────────────────────────── */
+    .btn-showroom {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-showroom:hover { background: var(--surface2); border-color: var(--blue); }
+    .btn-showroom::before { content: "🏪"; font-size: 16px; }
 
-.sug-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:13px 14px;
-  cursor:pointer;
-  border-bottom:1px solid var(--border);
-  transition:background .12s;
-  gap:8px;
-}
-.sug-item:last-child{border-bottom:none}
-.sug-item:active,.sug-item:hover{background:#eff6ff}
-.sug-name{font-size:14px;font-weight:600;color:var(--text);flex:1;line-height:1.4}
-.sug-name em{
-  font-style:normal;
-  color:var(--blue);
-  background:#dbeafe;
-  border-radius:4px;
-  padding:0 2px;
-}
-.sug-code{font-size:11px;color:var(--muted);background:var(--bg);
-  border-radius:6px;padding:3px 7px;flex-shrink:0;font-weight:500}
+    /* ─── Search Card ───────────────────────────────── */
+    .search-card { padding: 16px; }
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      margin-bottom: 12px;
+    }
 
-.sug-loading{
-  padding:14px;text-align:center;
-  font-size:13px;color:var(--muted);
-  display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.spin{
-  width:14px;height:14px;border:2px solid var(--border);
-  border-top-color:var(--blue);border-radius:50%;
-  animation:spin .7s linear infinite;display:inline-block;flex-shrink:0;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
+    .input-wrap { position: relative; margin-bottom: 10px; }
 
-/* Buttons row below input */
-.search-btns{display:flex;gap:8px}
-.btn-ico{
-  flex:1;height:52px;border:none;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;cursor:pointer;transition:opacity .15s;
-  font-family:inherit;font-weight:600;color:#fff;gap:6px;
-}
-.btn-ico:active{opacity:.75}
-.btn-search{background:var(--blue);font-size:15px}
-.btn-cam{background:var(--header);font-size:15px}
+    #searchInput {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 500;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      display: block;
+    }
+    #searchInput::placeholder { color: var(--muted); font-weight: 400; }
+    #searchInput:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(88,166,255,.12);
+    }
 
-/* CAMERA */
-#cameraWrap{
-  border-radius:var(--r);
-  overflow:hidden;
-  background:#000;
-  display:none !important;
-}
-#cameraWrap.open{display:block !important}
-#cameraContainer{width:100%}
-.btn-cancel-cam{
-  width:100%;padding:12px;background:#334155;color:#fff;
-  border:none;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;
-}
+    /* ─── Suggestions Dropdown ──────────────────────── */
+    #suggestDrop {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1.5px solid var(--blue);
+      border-radius: var(--r);
+      box-shadow: 0 12px 40px rgba(0,0,0,.6);
+      z-index: 500;
+      overflow: hidden;
+      display: none;
+      animation: dropIn .16s ease;
+    }
+    #suggestDrop.open { display: block; }
 
-/* RESULT */
-.result-card{overflow:hidden}
-.res-header{background:var(--header);padding:14px 16px;color:#fff}
-.res-name{font-size:18px;font-weight:700;line-height:1.3}
-.res-code{font-size:12px;color:#94a3b8;margin-top:3px}
-.usage-box{
-  margin:12px 16px 0;background:#fffbeb;border:1px solid #fcd34d;
-  border-radius:9px;padding:9px 12px;font-size:13px;color:#92400e;
-  display:flex;gap:8px;align-items:flex-start;
-}
-.prices-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px}
-.price-chip{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
-.price-chip .lbl{font-size:11px;color:var(--muted);font-weight:500}
-.price-chip .val{font-size:20px;font-weight:700;margin-top:3px}
-.price-chip.single .val{color:var(--green)}
-.price-chip.wholesale .val{color:var(--blue)}
-.stock-hdr{
-  padding:8px 16px;font-size:11px;font-weight:600;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.5px;
-  border-top:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;
-}
-.stock-badge{
-  background:var(--header);color:#fff;
-  border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;
-}
-.stock-table{width:100%;border-collapse:collapse}
-.stock-table td{padding:10px 16px;font-size:14px;border-top:1px solid var(--border)}
-.stock-table td:last-child{text-align:left;font-weight:600}
-.wh-name{color:var(--muted)}
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-/* FORM */
-.form-card{padding:16px}
-.form-title{
-  font-size:12px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;
-}
-.form-fields{display:flex;flex-direction:column;gap:10px}
-.field{display:flex;flex-direction:column;gap:5px;width:100%}
-.field label{font-size:13px;color:var(--muted);font-weight:600}
-.field input{
-  width:100%;padding:14px;font-size:16px;font-family:inherit;
-  border:1.5px solid var(--border);border-radius:9px;
-  background:#f8fafc;color:var(--text);outline:none;transition:border .2s;
-  display:block;
-}
-.field input:focus{border-color:var(--blue);background:#fff}
-.field input[readonly]{color:var(--muted);background:#f1f5f9}
-.btn-send{
-  width:100%;padding:16px;font-size:17px;font-weight:700;font-family:inherit;
-  background:var(--green);color:#fff;border:none;border-radius:10px;
-  cursor:pointer;margin-top:2px;transition:opacity .15s;
-}
-.btn-send:active{opacity:.8}
-.btn-send:disabled{background:#94a3b8}
+    .sug-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+      transition: background .1s;
+    }
+    .sug-item:last-child  { border-bottom: none; }
+    .sug-item:hover,
+    .sug-item:active      { background: rgba(88,166,255,.08); }
 
-/* STATES */
-.state-box{padding:36px 16px;text-align:center}
-.state-box .ico{font-size:44px;margin-bottom:10px}
-.state-box p{color:var(--muted);font-size:15px}
-.state-box.err p{color:#ef4444}
+    .sug-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+      line-height: 1.4;
+    }
+    .sug-name em {
+      font-style: normal;
+      color: var(--blue);
+      background: rgba(88,166,255,.15);
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+    .sug-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
+    .sug-loading {
+      padding: 16px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .spin {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-.result-card,.form-card{animation:up .22s ease}
-@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-</style>
+    /* ─── Action Buttons ────────────────────────────── */
+    .search-btns { display: flex; gap: 8px; }
+    .btn-action {
+      flex: 1;
+      height: 50px;
+      border: none;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-action:active { opacity: .8; transform: scale(.98); }
+    .btn-search { background: var(--blue); }
+    .btn-cam    { background: var(--surface2); border: 1px solid var(--border); }
+
+    /* ─── Camera ────────────────────────────────────── */
+    #cameraWrap { display: none; }
+    #cameraWrap.open { display: block; }
+    #cameraContainer { width: 100%; background: #000; }
+    .btn-cancel-cam {
+      width: 100%;
+      padding: 13px;
+      background: var(--surface2);
+      border: none;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-cancel-cam:hover { background: var(--red); color: #fff; }
+
+    /* ─── Result Card ───────────────────────────────── */
+    .result-card { animation: slideUp .22s ease; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .res-header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+    }
+    .res-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .res-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .usage-box {
+      margin: 12px 16px;
+      background: rgba(240,180,41,.08);
+      border: 1px solid rgba(240,180,41,.25);
+      border-radius: var(--r-sm);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #d4a00a;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+
+    .price-section {
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .price-label  { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+    .price-value  { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -.5px; margin-top: 2px; }
+    .price-unit   { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+    .stock-header {
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+    }
+    .total-badge {
+      background: var(--accent);
+      color: #0d1117;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .stock-table { width: 100%; border-collapse: collapse; }
+    .stock-table td {
+      padding: 11px 16px;
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .stock-table td:first-child { color: var(--muted); }
+    .stock-table td:last-child  {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+    }
+    .stock-table tr:hover td { background: var(--surface2); }
+
+    /* ─── Location Section ──────────────────────────── */
+    .location-card { padding: 14px 16px; }
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+    .location-view {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .location-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .btn-edit {
+      background: rgba(88,166,255,.12);
+      color: var(--blue);
+      border: 1px solid rgba(88,166,255,.25);
+      padding: 7px 12px;
+      border-radius: var(--r-sm);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .btn-edit:hover { background: rgba(88,166,255,.2); }
+    .location-edit  { display: none; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .location-edit.visible { display: flex; }
+    .location-edit-row { display: flex; gap: 8px; }
+    .loc-input {
+      flex: 1;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .loc-input:focus { border-color: var(--blue); }
+    .btn-save {
+      padding: 0 14px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 16px;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-cancel-edit {
+      padding: 0 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: var(--r-sm);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-save:active, .btn-cancel-edit:active { opacity: .7; }
+
+    /* ─── Movement Form ─────────────────────────────── */
+    .form-card  { padding: 16px; animation: slideUp .22s ease; }
+    .form-fields { display: flex; flex-direction: column; gap: 10px; }
+    .field       { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .field input {
+      width: 100%;
+      padding: 13px 14px;
+      font-size: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(88,166,255,.1);
+    }
+    .field input[readonly] { color: var(--muted); background: var(--surface2); cursor: not-allowed; }
+
+    .btn-send {
+      width: 100%;
+      padding: 15px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn-send:active  { opacity: .85; transform: scale(.99); }
+    .btn-send:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+
+    .last-price-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding-top: 2px;
+    }
+    .last-price-note span { color: var(--blue); font-weight: 600; }
+
+    /* ─── State Boxes ───────────────────────────────── */
+    .state-box {
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .state-box .ico { font-size: 42px; margin-bottom: 12px; }
+    .state-box p    { font-size: 14px; color: var(--muted); }
+    .state-box.err p { color: var(--red); }
+  </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="logo">
-    <div class="logo-icon">M</div>
-    <div class="logo-text">
-      <span class="logo-name">MAWARAN CO</span>
-      <span class="logo-sub">Inventory Store</span>
+  <!-- ─── Header ─────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="logo">
+      <div class="logo-icon">M</div>
+      <div class="logo-text">
+        <span class="logo-name">MAWARAN CO</span>
+        <span class="logo-sub">Inventory Store</span>
+      </div>
     </div>
-  </div>
-  <button id="installBtn" onclick="triggerInstall()">Install</button>
-</header>
+    <button id="installBtn" onclick="triggerInstall()">⬇ Install</button>
+  </header>
 
-<div id="iosBanner">
-  <div style="font-size:26px;flex-shrink:0">📲</div>
-  <div class="ios-text">
-    <strong>Install the App</strong>
-    Tap <strong>Share ↑</strong> then select <strong>"Add to Home Screen"</strong>
-  </div>
-  <button class="ios-close" onclick="closeBanner()">✕</button>
-</div>
-
-<div class="scroll-area">
-<div class="inner">
-  <a href="showroom-needs.html" class="btn-showroom"> Showroom Store</a>
-
-<style>
-  .btn-showroom {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #0056b3;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    font-family: system-ui, sans-serif;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
-  }
-</style>
-
-  <div class="card search-card">
-    <span class="section-label">🔎 Search by code, barcode or name</span>
-
-    <div class="input-wrap">
-      <input id="searchInput" type="text" placeholder="Enter code or product name..." autocomplete="off">
-      <!-- Suggestions dropdown -->
-      <div id="suggestDrop"></div>
+  <!-- ─── iOS Install Banner ──────────────────────────── -->
+  <div id="iosBanner">
+    <div class="ios-icon">📲</div>
+    <div class="ios-text">
+      <strong>Install the App</strong>
+      Tap <strong>Share ↑</strong> then select <strong>"Add to Home Screen"</strong>
     </div>
-
-    <div class="search-btns">
-      <button class="btn-ico btn-search" id="searchBtn">🔍 Search</button>
-      <button class="btn-ico btn-cam"    id="camBtn">📷 Camera</button>
-    </div>
+    <button class="ios-close" onclick="closeBanner()">✕</button>
   </div>
 
-  <div id="cameraWrap" class="card">
-    <div id="cameraContainer"></div>
-    <button class="btn-cancel-cam" onclick="stopCamera()">✕ Cancel Camera</button>
-  </div>
+  <!-- ─── Main Content ────────────────────────────────── -->
+  <div class="scroll-area">
+    <div class="inner">
 
-  <div id="result"></div>
+      <a href="showroom-needs.html" class="btn-showroom">Showroom Store</a>
 
-</div>
-</div>
-
-<script>
-
-/* ══ Service Worker (blob) ══ */
-if("serviceWorker" in navigator){
-  const code = `
-    const V="mawaran-v2";
-    self.addEventListener("install",()=>self.skipWaiting());
-    self.addEventListener("activate",e=>e.waitUntil(clients.claim()));
-    self.addEventListener("fetch",e=>{
-      if(e.request.method!=="GET")return;
-      e.respondWith(
-        caches.open(V).then(c=>
-          c.match(e.request).then(r=>
-            r||(fetch(e.request).then(nr=>{c.put(e.request,nr.clone());return nr}).catch(()=>r))
-          )
-        )
-      );
-    });`;
-  const blob = new Blob([code],{type:"application/javascript"});
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-}
-
-/* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbwDUHam_H5PKPJArZwNrJkg6_fDm73LCzIsRBhqVcDGhVzlqneoxv2O1JChbaGfeBohpg/exec";
-const searchInput  = document.getElementById("searchInput");
-const suggestDrop  = document.getElementById("suggestDrop");
-const resultDiv    = document.getElementById("result");
-const cameraWrap   = document.getElementById("cameraWrap");
-let scanner        = null;
-let isSending      = false;
-let deferredPrompt = null;
-let suggestTimer   = null;
-let lastSugQuery   = "";
-
-/* ══ Install ══ */
-window.addEventListener("beforeinstallprompt", e=>{
-  e.preventDefault(); deferredPrompt=e;
-  document.getElementById("installBtn").classList.add("show");
-});
-window.addEventListener("appinstalled",()=>{
-  deferredPrompt=null;
-  document.getElementById("installBtn").classList.remove("show");
-});
-function triggerInstall(){
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(()=>{
-    deferredPrompt=null;
-    document.getElementById("installBtn").classList.remove("show");
-  });
-}
-
-/* ══ iOS banner ══ */
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isStandalone = navigator.standalone===true
-  || window.matchMedia("(display-mode:standalone)").matches;
-if(isIOS && !isStandalone && !sessionStorage.bannerDone)
-  document.getElementById("iosBanner").classList.add("show");
-function closeBanner(){
-  document.getElementById("iosBanner").classList.remove("show");
-  sessionStorage.bannerDone="1";
-}
-
-/* ══ Focus helper ══ */
-function focusNoKB(){
-  searchInput.setAttribute("readonly","true");
-  searchInput.focus();
-  setTimeout(()=>searchInput.removeAttribute("readonly"),60);
-}
-window.onload=focusNoKB;
-
-/* ══ Close dropdown when clicking outside ══ */
-document.addEventListener("pointerdown", e=>{
-  if(!suggestDrop.contains(e.target) && e.target!==searchInput){
-    closeDrop();
-  }
-});
-
-/* ══ Highlight matched part ══ */
-function highlight(text, query){
-  // Strip spaces for matching position, but highlight in original text
-  const tLow  = text.toLowerCase().replace(/\s+/g,"");
-  const qLow  = query.toLowerCase().replace(/\s+/g,"");
-  const idx   = tLow.indexOf(qLow);
-  if(idx < 0) return text;
-
-  // Map stripped index back to original string
-  let si=0, start=-1, end=-1, count=0;
-  for(let i=0;i<text.length;i++){
-    if(text[i].trim()==="") continue;
-    if(count===idx) start=i;
-    if(count===idx+qLow.length-1) end=i;
-    count++;
-    si++;
-  }
-  if(start<0||end<0) return text;
-  return text.slice(0,start)
-    + `<em>${text.slice(start,end+1)}</em>`
-    + text.slice(end+1);
-}
-
-/* ══ Show / Close dropdown ══ */
-function closeDrop(){ suggestDrop.classList.remove("open"); suggestDrop.innerHTML=""; }
-
-function showDrop(html){
-  suggestDrop.innerHTML=html;
-  suggestDrop.classList.add("open");
-}
-
-/* ══ Live suggestions while typing ══ */
-searchInput.addEventListener("input", ()=>{
-  const q = searchInput.value.trim();
-
-  if(q.length < 2){
-    closeDrop();
-    clearTimeout(suggestTimer);
-    return;
-  }
-
-  if(q === lastSugQuery) return;
-
-  clearTimeout(suggestTimer);
-
-  // Show loading spinner immediately
-  showDrop(`<div class="sug-loading"><span class="spin"></span> Searching...</div>`);
-
-  suggestTimer = setTimeout(()=> fetchSuggestions(q), 320);
-});
-
-async function fetchSuggestions(q){
-  lastSugQuery = q;
-  try{
-    const res  = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`);
-    const data = await res.json();
-
-    // If the query changed while we were fetching, ignore old result
-    if(q !== lastSugQuery) return;
-
-    if(!data.suggestions || data.suggestions.length===0){
-      closeDrop(); return;
-    }
-
-    let html="";
-    data.suggestions.forEach(s=>{
-      const hName = highlight(s.name, q);
-      html += `<div class="sug-item" onpointerdown="pickSuggestion('${esc(s.code)}')">
-        <span class="sug-name">${hName}</span>
-        <span class="sug-code">${s.code}</span>
-      </div>`;
-    });
-    showDrop(html);
-  }catch(e){
-    closeDrop();
-  }
-}
-
-function esc(str){ return str.replace(/\\/g,"\\\\").replace(/'/g,"\\'"); }
-
-function pickSuggestion(code){
-  closeDrop();
-  searchInput.value = code;
-  searchStock(code);
-}
-
-/* ══ Search on Enter / button ══ */
-searchInput.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){ closeDrop(); doSearch(); }
-  if(e.key==="Escape"){ closeDrop(); }
-});
-document.getElementById("searchBtn").onclick = ()=>{ closeDrop(); doSearch(); };
-document.getElementById("camBtn").onclick    = openCamera;
-function doSearch(){ searchStock(searchInput.value.trim()); }
-
-/* ── Full Search ── */
-async function searchStock(code){
-  if(!code) return;
-  stopCamera();
-  lastSugQuery = "";
-
-  resultDiv.innerHTML=`<div class="card"><div class="state-box"><div class="ico">⏳</div><p>Searching...</p></div></div>`;
-  try{
-    const res  = await fetch(`${API}?code=${encodeURIComponent(code)}`);
-    const data = await res.json();
-
-    if(!data?.items?.length){
-      resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">❌</div><p>No data found for this code</p></div></div>`;
-      resetInput(); return;
-    }
-
-    let total=0;
-    data.items.forEach(i=>total+=Number(i.balance)||0);
-
-    let html=`<div class="card result-card">
-      <div class="res-header">
-        <div class="res-name">${data.name}</div>
-        <div class="res-code">Code: ${code.toUpperCase()}</div>
-      </div>`;
-
-    if(data.usage)
-      html+=`<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`;
-
-    html+=`<div style="padding:16px;text-align:center">
-      <div style="font-size:28px;font-weight:700;color:var(--green)">${data.price_single} $</div>
-    </div>
-    <div class="stock-hdr"><span>Warehouses</span><span class="stock-badge">📦 ${total}</span></div>
-    <table class="stock-table">`;
-
-    data.items.forEach(i=>{
-      html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;
-    });
-
-html+=`</table></div>
-
-<div class="card" style="padding:14px 16px">
-  <div class="form-title">📍 Product Location</div>
-
-  <div id="locationView" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-    <div id="locText" style="font-size:16px;font-weight:600;color:var(--text)">
-      ${data.location || '—'}
-    </div>
-    <button onclick="editLocation()" style="
-      background:var(--blue);
-      color:#fff;
-      border:none;
-      padding:8px 12px;
-      border-radius:8px;
-      font-size:13px;
-      cursor:pointer;
-    ">✏️ Edit</button>
-  </div>
-
-  <div id="locationEdit" style="display:none;gap:8px;margin-top:10px">
-    <input id="locInput" value="${data.location || ''}" style="
-      flex:1;
-      padding:12px;
-      border:1.5px solid var(--border);
-      border-radius:8px;
-      font-size:15px;
-    ">
-<button onclick="saveLocation('${data.barcode_key}')" style="
-  background:var(--green);
-  color:#fff;
-  border:none;
-  padding:8px 12px;
-  border-radius:8px;
-  cursor:pointer;
-">✔</button>
-    <button onclick="cancelLocation()" style="
-      background:#64748b;
-      color:#fff;
-      border:none;
-      padding:8px 12px;
-      border-radius:8px;
-      cursor:pointer;
-    ">✕</button>
-  </div>
-</div>
-
-<div class="card form-card">
-      <div class="form-title">📤 Add Movement</div>
-      <div class="form-fields">
-        <div class="field"><label>Code</label><input id="f_code" value="${data.form_code}" readonly></div>
-        <div class="field"><label>Quantity</label><input id="f_qty" type="number" inputmode="numeric" placeholder="0"></div>
-        <div class="field"><label>Price</label><input id="f_price" type="number" inputmode="decimal" placeholder="0.00"></div>
-        <button class="btn-send" onclick="sendForm(event)">📤 Send</button>
-        <div style="text-align:center;margin-top:10px;font-size:12px;color:var(--muted)">
-          Last Price: <span style="color:var(--blue)">${data.price_wholesale} $</span>
+      <!-- Search -->
+      <div class="card search-card">
+        <div class="section-label">🔎 Search by code, barcode or name</div>
+        <div class="input-wrap">
+          <input id="searchInput" type="text" placeholder="Enter product code or name…" autocomplete="off">
+          <div id="suggestDrop"></div>
         </div>
-      </div>`;
+        <div class="search-btns">
+          <button class="btn-action btn-search" id="searchBtn">🔍 Search</button>
+          <button class="btn-action btn-cam"    id="camBtn">📷 Camera</button>
+        </div>
+      </div>
 
-    resultDiv.innerHTML=html;
-    resetInput();
-  }catch(err){
-    resultDiv.innerHTML=`<div class="card"><div class="state-box err"><div class="ico">⚠️</div><p>Connection error</p></div></div>`;
-    resetInput();
-  }
-}
+      <!-- Camera -->
+      <div id="cameraWrap" class="card">
+        <div id="cameraContainer"></div>
+        <button class="btn-cancel-cam" onclick="stopCamera()">✕ &nbsp; Cancel Camera</button>
+      </div>
 
-function resetInput(){ searchInput.value=""; lastSugQuery=""; setTimeout(focusNoKB,40); }
-function resetAll(){ resultDiv.innerHTML=""; searchInput.value=""; lastSugQuery=""; stopCamera(); closeDrop(); setTimeout(focusNoKB,100); }
+      <!-- Dynamic Result -->
+      <div id="result"></div>
 
-/* ── Camera (robust 3-strategy) ── */
-async function openCamera(){
-  await stopCamera();
-  cameraWrap.classList.add("open");
-  scanner = new Html5Qrcode("cameraContainer");
-  const cfg = { fps:12, qrbox:{width:230,height:230}, aspectRatio:1.0 };
-  const onScan = txt=>{ stopCamera(); searchStock(txt); };
+    </div>
+  </div>
 
-  try{ await scanner.start({facingMode:"environment"}, cfg, onScan); return; }catch(e1){}
-
-  let cams=[];
-  try{ cams = await Html5Qrcode.getCameras(); }catch(e){}
-  if(cams.length){
-    const back = cams.find(c=>/back|rear|environment|خلفي/i.test(c.label))
-                || cams[cams.length-1];
-    try{ await scanner.start(back.id, cfg, onScan); return; }catch(e2){}
-    for(let i=cams.length-1;i>=0;i--){
-      try{ await scanner.start(cams[i].id, cfg, onScan); return; }catch(e){}
+  <script>
+    /* ── Service Worker ─────────────────────────────── */
+    if ("serviceWorker" in navigator) {
+      const swCode = `
+        const V = "mawaran-v2";
+        self.addEventListener("install", () => self.skipWaiting());
+        self.addEventListener("activate", e => e.waitUntil(clients.claim()));
+        self.addEventListener("fetch", e => {
+          if (e.request.method !== "GET") return;
+          e.respondWith(
+            caches.open(V).then(c =>
+              c.match(e.request).then(r =>
+                r || fetch(e.request).then(nr => { c.put(e.request, nr.clone()); return nr; }).catch(() => r)
+              )
+            )
+          );
+        });`;
+      const blob = new Blob([swCode], { type: "application/javascript" });
+      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
     }
-  }
 
-  stopCamera();
-  alert("⚠️ Could not open camera.\nPlease allow camera permission in your browser settings.");
-}
+    /* ── Constants ──────────────────────────────────── */
+    const API = "https://script.google.com/macros/s/AKfycbwDUHam_H5PKPJArZwNrJkg6_fDm73LCzIsRBhqVcDGhVzlqneoxv2O1JChbaGfeBohpg/exec";
 
-async function stopCamera(){
-  cameraWrap.classList.remove("open");
-  if(scanner){
-    try{ await scanner.stop(); }catch(e){}
-    scanner=null;
-  }
-  document.getElementById("cameraContainer").innerHTML="";
-}
-function editLocation(){
-  document.getElementById("locationView").style.display = "none";
-  document.getElementById("locationEdit").style.display = "flex";
-}
+    /* ── DOM refs ───────────────────────────────────── */
+    const searchInput = document.getElementById("searchInput");
+    const suggestDrop = document.getElementById("suggestDrop");
+    const resultDiv   = document.getElementById("result");
+    const cameraWrap  = document.getElementById("cameraWrap");
 
-function cancelLocation(){
-  document.getElementById("locationView").style.display = "flex";
-  document.getElementById("locationEdit").style.display = "none";
-}
+    /* ── State ──────────────────────────────────────── */
+    let scanner       = null;
+    let isSending     = false;
+    let deferredPrompt = null;
+    let suggestTimer  = null;
+    let lastSugQuery  = "";
 
-async function saveLocation(code){
-  const input = document.getElementById("locInput");
-  const newVal = input.value.trim();
-
-  if(!newVal){
-    alert("⚠️ Please enter the location");
-    return;
-  }
-
-  try{
-    input.disabled = true;
-    const response = await fetch(API, {
-      method: "POST",
-      headers: {"Content-Type":"text/plain"}, // ضروري لتجنب مشاكل CORS
-      body: JSON.stringify({
-        action: "updateLocation",
-        code: code,
-        location: newVal
-      })
+    /* ── PWA Install ────────────────────────────────── */
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("installBtn").classList.add("show");
     });
-    
-    const result = await response.json();
-    
-    if(result.status === "updated"){
-      document.getElementById("locText").innerText = newVal;
-      document.getElementById("locationView").style.display = "flex";
-      document.getElementById("locationEdit").style.display = "none";
-      alert("✅ The location has been updated successfully");
-    } else {
-      alert("❌ لم يتم العثور على المنتج في Sheet1 (Code: " + code + ")");
+    window.addEventListener("appinstalled", () => {
+      deferredPrompt = null;
+      document.getElementById("installBtn").classList.remove("show");
+    });
+    function triggerInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => {
+        deferredPrompt = null;
+        document.getElementById("installBtn").classList.remove("show");
+      });
     }
-  } catch(err) {
-    console.error(err);
-    alert("❌ حدث خطأ في الاتصال");
-  } finally {
-    input.disabled = false;
-  }
-}
 
-/* ── Send ── */
-async function sendForm(e){
-  if(isSending) return;
-  const qty   = document.getElementById("f_qty")?.value;
-  const price = document.getElementById("f_price")?.value;
-  const code  = document.getElementById("f_code")?.value;
-  const btn   = e.target;
-  if(!qty||!price){alert("⚠️ Please enter quantity and price");return;}
-  isSending=true; btn.disabled=true; btn.innerText="⏳ Sending...";
-  try{
-    await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify({code,qty,price})});
-    alert("✅ Sent successfully!");
-    resetAll();
-  }catch(err){
-    alert("❌ Send failed, please try again");
-    btn.disabled=false; btn.innerText="📤 Send";
-  }finally{ isSending=false; }
-}
-</script>
+    /* ── iOS Banner ─────────────────────────────────── */
+    const isIOS        = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = navigator.standalone === true
+                      || window.matchMedia("(display-mode:standalone)").matches;
+    if (isIOS && !isStandalone && !sessionStorage.bannerDone)
+      document.getElementById("iosBanner").classList.add("show");
+    function closeBanner() {
+      document.getElementById("iosBanner").classList.remove("show");
+      sessionStorage.bannerDone = "1";
+    }
+
+    /* ── Focus helper (prevents mobile keyboard popup on load) ── */
+    function focusNoKB() {
+      searchInput.setAttribute("readonly", "true");
+      searchInput.focus();
+      setTimeout(() => searchInput.removeAttribute("readonly"), 60);
+    }
+    window.onload = focusNoKB;
+
+    /* ── Close dropdown on outside click ───────────── */
+    document.addEventListener("pointerdown", e => {
+      if (!suggestDrop.contains(e.target) && e.target !== searchInput) closeDrop();
+    });
+
+    /* ── Highlight matched text in suggestion ───────── */
+    function highlight(text, query) {
+      const tLow = text.toLowerCase().replace(/\s+/g, "");
+      const qLow = query.toLowerCase().replace(/\s+/g, "");
+      const idx  = tLow.indexOf(qLow);
+      if (idx < 0) return text;
+      let count = 0, start = -1, end = -1;
+      for (let i = 0; i < text.length; i++) {
+        if (text[i].trim() === "") continue;
+        if (count === idx) start = i;
+        if (count === idx + qLow.length - 1) end = i;
+        count++;
+      }
+      if (start < 0 || end < 0) return text;
+      return text.slice(0, start) + `<em>${text.slice(start, end + 1)}</em>` + text.slice(end + 1);
+    }
+
+    /* ── Dropdown helpers ───────────────────────────── */
+    function closeDrop() { suggestDrop.classList.remove("open"); suggestDrop.innerHTML = ""; }
+    function showDrop(html) { suggestDrop.innerHTML = html; suggestDrop.classList.add("open"); }
+
+    /* ── Live suggestions ───────────────────────────── */
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.trim();
+      if (q.length < 2) { closeDrop(); clearTimeout(suggestTimer); return; }
+      if (q === lastSugQuery) return;
+      clearTimeout(suggestTimer);
+      showDrop(`<div class="sug-loading"><span class="spin"></span> Searching…</div>`);
+      suggestTimer = setTimeout(() => fetchSuggestions(q), 320);
+    });
+
+    async function fetchSuggestions(q) {
+      lastSugQuery = q;
+      try {
+        const res  = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (q !== lastSugQuery) return;
+        if (!data.suggestions?.length) { closeDrop(); return; }
+        let html = "";
+        data.suggestions.forEach(s => {
+          const hName = highlight(s.name, q);
+          html += `<div class="sug-item" onpointerdown="pickSuggestion('${esc(s.code)}')">
+            <span class="sug-name">${hName}</span>
+            <span class="sug-code">${s.code}</span>
+          </div>`;
+        });
+        showDrop(html);
+      } catch { closeDrop(); }
+    }
+
+    function esc(str) { return str.replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+    function pickSuggestion(code) { closeDrop(); searchInput.value = code; searchStock(code); }
+
+    /* ── Search events ──────────────────────────────── */
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter")  { closeDrop(); doSearch(); }
+      if (e.key === "Escape") { closeDrop(); }
+    });
+    document.getElementById("searchBtn").onclick = () => { closeDrop(); doSearch(); };
+    document.getElementById("camBtn").onclick     = openCamera;
+    function doSearch() { searchStock(searchInput.value.trim()); }
+
+    /* ── Full product search ────────────────────────── */
+    async function searchStock(code) {
+      if (!code) return;
+      stopCamera();
+      lastSugQuery = "";
+
+      resultDiv.innerHTML = `<div class="card"><div class="state-box">
+        <div class="ico">⏳</div><p>Searching…</p>
+      </div></div>`;
+
+      try {
+        const res  = await fetch(`${API}?code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+
+        if (!data?.items?.length) {
+          resultDiv.innerHTML = `<div class="card"><div class="state-box err">
+            <div class="ico">❌</div><p>No product found for this code</p>
+          </div></div>`;
+          resetInput();
+          return;
+        }
+
+        let total = 0;
+        data.items.forEach(i => total += Number(i.balance) || 0);
+
+        const barcodeKey = data.barcode_key || code;
+
+        let html = `
+          <div class="card result-card">
+            <div class="res-header">
+              <div class="res-name">${data.name}</div>
+              <div class="res-code">Code: ${code.toUpperCase()}</div>
+            </div>
+            ${data.usage ? `<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>` : ""}
+            <div class="price-section">
+              <div>
+                <div class="price-label">Unit Price</div>
+                <div class="price-value">${data.price_single} <span class="price-unit">$</span></div>
+              </div>
+            </div>
+            <div class="stock-header">
+              <span>Warehouses</span>
+              <span class="total-badge">📦 ${total}</span>
+            </div>
+            <table class="stock-table">
+              ${data.items.map(i => `<tr>
+                <td>${i.warehouse}</td>
+                <td>${i.balance}</td>
+              </tr>`).join("")}
+            </table>
+          </div>
+
+          <div class="card form-card">
+            <div class="card-label">📍 Product Location</div>
+            <div class="location-view" id="locationView">
+              <div class="location-text" id="locText">${data.location || '—'}</div>
+              <button class="btn-edit" onclick="editLocation()">✏ Edit</button>
+            </div>
+            <div class="location-edit" id="locationEdit">
+              <div class="location-edit-row">
+                <input class="loc-input" id="locInput" type="text" value="${data.location || ''}" placeholder="Enter location…">
+                <button class="btn-save"        onclick="saveLocation('${esc(barcodeKey)}')">✔</button>
+                <button class="btn-cancel-edit" onclick="cancelLocation()">✕</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card form-card">
+            <div class="card-label">📤 Add Movement</div>
+            <div class="form-fields">
+              <div class="field">
+                <label>Product Code</label>
+                <input id="f_code" value="${data.form_code}" readonly>
+              </div>
+              <div class="field">
+                <label>Quantity</label>
+                <input id="f_qty" type="number" inputmode="numeric" placeholder="0">
+              </div>
+              <div class="field">
+                <label>Price</label>
+                <input id="f_price" type="number" inputmode="decimal" placeholder="0.00">
+              </div>
+              <button class="btn-send" onclick="sendForm(event)">📤 Send Movement</button>
+              <div class="last-price-note">Last Wholesale Price: <span>${data.price_wholesale} $</span></div>
+            </div>
+          </div>`;
+
+        resultDiv.innerHTML = html;
+        resetInput();
+
+      } catch {
+        resultDiv.innerHTML = `<div class="card"><div class="state-box err">
+          <div class="ico">⚠️</div><p>Connection error — please try again</p>
+        </div></div>`;
+        resetInput();
+      }
+    }
+
+    /* ── Reset helpers ──────────────────────────────── */
+    function resetInput() { searchInput.value = ""; lastSugQuery = ""; setTimeout(focusNoKB, 40); }
+    function resetAll()   { resultDiv.innerHTML = ""; searchInput.value = ""; lastSugQuery = ""; stopCamera(); closeDrop(); setTimeout(focusNoKB, 100); }
+
+    /* ── Location edit ──────────────────────────────── */
+    function editLocation() {
+      document.getElementById("locationView").style.display = "none";
+      document.getElementById("locationEdit").classList.add("visible");
+    }
+    function cancelLocation() {
+      document.getElementById("locationView").style.display = "flex";
+      document.getElementById("locationEdit").classList.remove("visible");
+    }
+    async function saveLocation(code) {
+      const input  = document.getElementById("locInput");
+      const newVal = input.value.trim();
+      if (!newVal) { alert("⚠️ Please enter a location."); return; }
+      input.disabled = true;
+      try {
+        const response = await fetch(API, {
+          method:  "POST",
+          headers: { "Content-Type": "text/plain" },
+          body:    JSON.stringify({ action: "updateLocation", code, location: newVal })
+        });
+        const result = await response.json();
+        if (result.status === "updated") {
+          document.getElementById("locText").innerText = newVal;
+          cancelLocation();
+          alert("✅ Location updated successfully.");
+        } else {
+          alert("❌ Product not found (Code: " + code + ")");
+        }
+      } catch {
+        alert("❌ Connection error — please try again.");
+      } finally {
+        input.disabled = false;
+      }
+    }
+
+    /* ── Camera ─────────────────────────────────────── */
+    async function openCamera() {
+      await stopCamera();
+      cameraWrap.classList.add("open");
+      scanner = new Html5Qrcode("cameraContainer");
+      const cfg    = { fps: 12, qrbox: { width: 230, height: 230 }, aspectRatio: 1.0 };
+      const onScan = txt => { stopCamera(); searchStock(txt); };
+      try { await scanner.start({ facingMode: "environment" }, cfg, onScan); return; } catch { }
+      let cams = [];
+      try { cams = await Html5Qrcode.getCameras(); } catch { }
+      if (cams.length) {
+        const back = cams.find(c => /back|rear|environment/i.test(c.label)) || cams[cams.length - 1];
+        try { await scanner.start(back.id, cfg, onScan); return; } catch { }
+        for (let i = cams.length - 1; i >= 0; i--) {
+          try { await scanner.start(cams[i].id, cfg, onScan); return; } catch { }
+        }
+      }
+      stopCamera();
+      alert("⚠️ Could not open camera.\nPlease allow camera permission in your browser settings.");
+    }
+
+    async function stopCamera() {
+      cameraWrap.classList.remove("open");
+      if (scanner) {
+        try { await scanner.stop(); } catch { }
+        scanner = null;
+      }
+      document.getElementById("cameraContainer").innerHTML = "";
+    }
+
+    /* ── Send movement ──────────────────────────────── */
+    async function sendForm(e) {
+      if (isSending) return;
+      const qty   = document.getElementById("f_qty")?.value;
+      const price = document.getElementById("f_price")?.value;
+      const code  = document.getElementById("f_code")?.value;
+      const btn   = e.target;
+      if (!qty || !price) { alert("⚠️ Please enter both quantity and price."); return; }
+      isSending = true;
+      btn.disabled  = true;
+      btn.innerText = "⏳ Sending…";
+      try {
+        await fetch(API, {
+          method:  "POST",
+          headers: { "Content-Type": "text/plain" },
+          body:    JSON.stringify({ code, qty, price })
+        });
+        alert("✅ Movement sent successfully!");
+        resetAll();
+      } catch {
+        alert("❌ Send failed — please try again.");
+        btn.disabled  = false;
+        btn.innerText = "📤 Send Movement";
+      } finally {
+        isSending = false;
+      }
+    }
+  </script>
 </body>
 </html>

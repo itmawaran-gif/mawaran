@@ -336,7 +336,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbxeyBejwBGL4z11BcbNqNggKIsujpbDwvk7o-VvSVPY3ooo1QMlFsYRjH46deWVpFEP/exec";
+const API = "https://script.google.com/macros/s/AKfycbwDUHam_H5PKPJArZwNrJkg6_fDm73LCzIsRBhqVcDGhVzlqneoxv2O1JChbaGfeBohpg/exec";
 const searchInput  = document.getElementById("searchInput");
 const suggestDrop  = document.getElementById("suggestDrop");
 const resultDiv    = document.getElementById("result");
@@ -552,14 +552,14 @@ html+=`</table></div>
       border-radius:8px;
       font-size:15px;
     ">
-    <button onclick="saveLocation('${data.original_barcode}')" style="
-      background:var(--green);
-      color:#fff;
-      border:none;
-      padding:8px 12px;
-      border-radius:8px;
-      cursor:pointer;
-    ">✔</button>
+<button onclick="saveLocation('${data.barcode_key}')" style="
+  background:var(--green);
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+">✔</button>
     <button onclick="cancelLocation()" style="
       background:#64748b;
       color:#fff;

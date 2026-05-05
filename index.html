@@ -201,8 +201,8 @@
 
     /* ─── Suggestions ────────────────────────────────── */
     #suggestDrop {
-      position: absolute;
-      top: calc(100% + 6px);
+      position: fixed;
+      top: auto;
       left: 0; right: 0;
       background: var(--white);
       border: 1.5px solid var(--blue);
@@ -436,7 +436,6 @@
         <div class="sec-body">
           <div class="input-wrap">
             <input id="searchInput" type="text" placeholder="Enter code, barcode or product name…" autocomplete="off">
-            <div id="suggestDrop"></div>
           </div>
           <div class="search-btns">
             <button class="btn-action btn-search" id="searchBtn">🔍 &nbsp; Search</button>
@@ -456,7 +455,7 @@
 
     </div>
   </div>
-
+   <div id="suggestDrop"></div>
   <script>
     /* ── Service Worker ────────────────────────────── */
     if ("serviceWorker" in navigator) {
@@ -547,8 +546,21 @@
     }
 
     /* ── Dropdown ──────────────────────────────────── */
-    function closeDrop() { suggestDrop.classList.remove("open"); suggestDrop.innerHTML = ""; }
-    function showDrop(html) { suggestDrop.innerHTML = html; suggestDrop.classList.add("open"); }
+    function closeDrop() {
+  suggestDrop.classList.remove("open");
+  suggestDrop.innerHTML = "";
+}
+
+   function showDrop(html) {
+  const rect = searchInput.getBoundingClientRect();
+  suggestDrop.style.position = "fixed";
+  suggestDrop.style.top      = (rect.bottom + 6) + "px";
+  suggestDrop.style.left     = rect.left + "px";
+  suggestDrop.style.width    = rect.width + "px";
+  suggestDrop.style.right    = "auto";
+  suggestDrop.innerHTML      = html;
+  suggestDrop.classList.add("open");
+}
 
     /* ── Live suggestions ──────────────────────────── */
     searchInput.addEventListener("input", () => {

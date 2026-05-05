@@ -561,21 +561,29 @@
     });
 
     async function fetchSuggestions(q) {
-      lastSugQuery = q;
-      try {
-        const data = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`).then(r => r.json());
-        if (q !== lastSugQuery) return;
-        if (!data.suggestions?.length) { closeDrop(); return; }
-        let html = "";
-        data.suggestions.forEach(s => {
-          html += `<div class="sug-item" onpointerdown="pickSuggestion('${esc(s.code)}')">
-            <span class="sug-name">${highlight(s.name, q)}</span>
-            <span class="sug-code">${s.code}</span>
-          </div>`;
-        });
-        showDrop(html);
-      } catch { closeDrop(); }
-    }
+  lastSugQuery = q;
+  try {
+    const data = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`).then(r => r.json());
+    if (q !== lastSugQuery) return;
+    if (!data.suggestions?.length) { closeDrop(); return; }
+    let html = "";
+    data.suggestions.forEach(s => {
+      const safeName = s.name.replace(//g,">");
+      const safeCode = s.code.replace(//g,">");
+      html += `<div class="sug-item" data-code="${s.code.replace(/"/g,'"')}">
+        <span class="sug-name">${highlight(safeName, q)}</span>
+        <span class="sug-code">${safeCode}</span>
+      </div>`;
+    });
+    showDrop(html);
+    // ← Event delegation بدلاً من inline handler
+    suggestDrop.querySelectorAll(".sug-item").forEach(el => {
+      el.addEventListener("pointerdown", () => {
+        pickSuggestion(el.dataset.code);
+      });
+    });
+  } catch { closeDrop(); }
+}
 
     function esc(s) { return s.replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
     function pickSuggestion(code) { closeDrop(); searchInput.value = code; searchStock(code); }
@@ -711,31 +719,36 @@
       document.getElementById("locationEdit").classList.remove("open");
     }
     async function saveLocation(code) {
-      const input  = document.getElementById("locInput");
-      const newVal = input.value.trim();
-      if (!newVal) { alert("⚠️ Please enter a location."); return; }
-      input.disabled = true;
-      try {
-        const res = await fetch(API, {
-          method:  "POST",
-          headers: { "Content-Type": "text/plain" },
-          body:    JSON.stringify({ action: "updateLocation", code, location: newVal })
-        }).then(r => r.json());
-        if (res.status === "updated") {
-          const disp = document.querySelector(".loc-display");
-          disp.textContent = newVal;
-          disp.classList.remove("empty");
-          cancelLocation();
-          alert("✅ Location updated successfully.");
-        } else {
-          alert("❌ Product not found (Code: " + code + ")");
-        }
-      } catch {
-        alert("❌ Connection error — please try again.");
-      } finally {
-        input.disabled = false;
-      }
+  const input   = document.getElementById("locInput");
+  const saveBtn = document.querySelector(".btn-loc-save");
+  const newVal  = input.value.trim();
+  if (!newVal) { alert("⚠️ Please enter a location."); return; }
+  input.disabled    = true;
+  saveBtn.textContent = "⏳";
+  saveBtn.disabled  = true;
+  try {
+    const res = await fetch(API, {
+      method:  "POST",
+      headers: { "Content-Type": "text/plain" },
+      body:    JSON.stringify({ action: "updateLocation", code, location: newVal })
+    }).then(r => r.json());
+    if (res.status === "updated") {
+      const disp = document.querySelector(".loc-display");
+      disp.textContent = newVal;
+      disp.classList.remove("empty");
+      cancelLocation();
+      alert("✅ Location updated successfully.");
+    } else {
+      alert("❌ Product not found (Code: " + code + ")");
     }
+  } catch {
+    alert("❌ Connection error — please try again.");
+  } finally {
+    input.disabled        = false;
+    saveBtn.textContent   = "✔";
+    saveBtn.disabled      = false;
+  }
+}
 
     /* ── Camera ────────────────────────────────────── */
     async function openCamera() {

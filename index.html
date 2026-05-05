@@ -7,39 +7,46 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MAWARAN">
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#1e3a5f">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="manifest" href="manifest.json">
   <title>MAWARAN Store</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
-    /* ─── Design Tokens ─────────────────────────────── */
+    /* ─── Tokens ─────────────────────────────────────── */
     :root {
-      --bg:       #0d1117;
-      --surface:  #161b22;
-      --surface2: #21262d;
-      --border:   #30363d;
-      --accent:   #f0b429;
-      --blue:     #58a6ff;
-      --green:    #3fb950;
-      --red:      #f85149;
-      --text:     #e6edf3;
-      --text2:    #c9d1d9;
-      --muted:    #8b949e;
-      --r:        12px;
-      --r-sm:     8px;
-      --sh:       0 8px 32px rgba(0,0,0,.5);
+      --bg:        #eef1f6;
+      --white:     #ffffff;
+      --navy:      #1e3a5f;
+      --navy-lt:   #e8edf5;
+      --blue:      #2563eb;
+      --blue-lt:   #eff6ff;
+      --green:     #059669;
+      --green-lt:  #ecfdf5;
+      --amber:     #d97706;
+      --amber-lt:  #fffbeb;
+      --violet:    #7c3aed;
+      --violet-lt: #f5f3ff;
+      --red:       #dc2626;
+      --red-lt:    #fef2f2;
+      --text:      #0f172a;
+      --text2:     #334155;
+      --muted:     #64748b;
+      --border:    #dde3ed;
+      --r:         14px;
+      --r-sm:      9px;
+      --sh:        0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.07);
     }
 
-    /* ─── Reset & Base ──────────────────────────────── */
+    /* ─── Reset ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; }
     body {
-      font-family: 'Outfit', system-ui, sans-serif;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -49,11 +56,10 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* ─── Header ────────────────────────────────────── */
+    /* ─── Header ─────────────────────────────────────── */
     .app-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
+      background: var(--navy);
+      padding: 13px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -61,134 +67,121 @@
       top: 0;
       z-index: 200;
       flex-shrink: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .logo { display: flex; align-items: center; gap: 11px; }
     .logo-icon {
-      width: 38px;
-      height: 38px;
-      background: var(--accent);
-      border-radius: var(--r-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 800;
-      color: #0d1117;
+      width: 38px; height: 38px;
+      background: var(--amber);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 800; color: var(--navy);
       flex-shrink: 0;
-      letter-spacing: -0.5px;
     }
-    .logo-text { display: flex; flex-direction: column; line-height: 1; }
-    .logo-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: .3px; }
-    .logo-sub  { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 400; }
-
+    .logo-text  { display: flex; flex-direction: column; line-height: 1; }
+    .logo-name  { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .3px; }
+    .logo-sub   { font-size: 11px; color: #93b4d4; margin-top: 3px; font-weight: 500; }
     #installBtn {
       display: none;
-      background: var(--accent);
-      color: #0d1117;
+      background: var(--amber);
+      color: var(--navy);
       border: none;
-      border-radius: var(--r-sm);
+      border-radius: 8px;
       padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 12px; font-weight: 700;
       font-family: inherit;
       cursor: pointer;
-      transition: opacity .15s;
     }
     #installBtn.show { display: block; }
-    #installBtn:active { opacity: .8; }
 
-    /* ─── iOS Banner ────────────────────────────────── */
+    /* ─── iOS Banner ─────────────────────────────────── */
     #iosBanner {
       display: none;
-      background: #162032;
-      border-bottom: 1px solid var(--border);
+      background: #dbeafe;
+      border-bottom: 1px solid #bfdbfe;
       padding: 10px 16px;
       align-items: center;
       gap: 12px;
       flex-shrink: 0;
     }
     #iosBanner.show { display: flex; }
-    .ios-icon { font-size: 24px; flex-shrink: 0; }
-    .ios-text  { flex: 1; font-size: 12px; line-height: 1.6; color: var(--muted); }
-    .ios-text strong { display: block; font-size: 13px; color: var(--accent); margin-bottom: 2px; }
-    .ios-close {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 18px;
-      cursor: pointer;
-      padding: 4px 6px;
-      line-height: 1;
-      border-radius: 6px;
-      transition: background .15s;
-    }
-    .ios-close:hover { background: var(--surface2); }
+    .ios-text  { flex: 1; font-size: 12px; line-height: 1.6; color: #1e40af; }
+    .ios-text strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .ios-close { background: none; border: none; color: #3b82f6; font-size: 18px; cursor: pointer; }
 
-    /* ─── Scroll & Layout ───────────────────────────── */
+    /* ─── Layout ─────────────────────────────────────── */
     .scroll-area {
       flex: 1;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      padding: 16px 14px 32px;
+      padding: 16px 14px 36px;
     }
-    .inner {
-      max-width: 480px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .inner { max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
 
-    /* ─── Cards ─────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
+    /* ─── Section Card ───────────────────────────────── */
+    .section {
+      background: var(--white);
       border-radius: var(--r);
+      box-shadow: var(--sh);
       overflow: hidden;
+      border: 1px solid var(--border);
     }
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .sec-body { padding: 14px 16px; }
 
-    /* ─── Showroom Link ─────────────────────────────── */
+    /* Section color themes */
+    .sec--search  .sec-head { background: var(--blue-lt);   color: var(--blue); }
+    .sec--search  .sec-icon { background: var(--blue);      color: #fff; }
+    .sec--info    .sec-head { background: var(--navy-lt);   color: var(--navy); }
+    .sec--info    .sec-icon { background: var(--navy);      color: #fff; }
+    .sec--stock   .sec-head { background: var(--green-lt);  color: var(--green); }
+    .sec--stock   .sec-icon { background: var(--green);     color: #fff; }
+    .sec--location .sec-head{ background: var(--amber-lt);  color: var(--amber); }
+    .sec--location .sec-icon{ background: var(--amber);     color: #fff; }
+    .sec--move    .sec-head { background: var(--violet-lt); color: var(--violet); }
+    .sec--move    .sec-icon { background: var(--violet);    color: #fff; }
+
+    /* ─── Showroom link ──────────────────────────────── */
     .btn-showroom {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       padding: 13px;
-      background: var(--surface);
+      background: var(--white);
       border: 1px solid var(--border);
       border-radius: var(--r);
-      color: var(--blue);
+      color: var(--navy);
       text-decoration: none;
       font-size: 14px;
-      font-weight: 600;
-      transition: background .15s, border-color .15s;
+      font-weight: 700;
+      box-shadow: var(--sh);
+      transition: background .15s;
     }
-    .btn-showroom:hover { background: var(--surface2); border-color: var(--blue); }
-    .btn-showroom::before { content: "🏪"; font-size: 16px; }
+    .btn-showroom:active { background: var(--navy-lt); }
 
-    /* ─── Search Card ───────────────────────────────── */
-    .search-card { padding: 16px; }
-    .section-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .7px;
-      margin-bottom: 12px;
-    }
-
+    /* ─── Search Input ───────────────────────────────── */
     .input-wrap { position: relative; margin-bottom: 10px; }
-
     #searchInput {
       width: 100%;
-      padding: 14px 16px;
+      padding: 13px 16px;
       font-size: 15px;
       font-family: inherit;
       font-weight: 500;
@@ -198,362 +191,215 @@
       color: var(--text);
       outline: none;
       transition: border-color .2s, box-shadow .2s;
-      display: block;
     }
     #searchInput::placeholder { color: var(--muted); font-weight: 400; }
     #searchInput:focus {
       border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(88,166,255,.12);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
     }
 
-    /* ─── Suggestions Dropdown ──────────────────────── */
+    /* ─── Suggestions ────────────────────────────────── */
     #suggestDrop {
       position: absolute;
       top: calc(100% + 6px);
       left: 0; right: 0;
-      background: var(--surface2);
+      background: var(--white);
       border: 1.5px solid var(--blue);
-      border-radius: var(--r);
-      box-shadow: 0 12px 40px rgba(0,0,0,.6);
+      border-radius: var(--r-sm);
+      box-shadow: 0 8px 28px rgba(0,0,0,.15);
       z-index: 500;
       overflow: hidden;
       display: none;
       animation: dropIn .16s ease;
     }
     #suggestDrop.open { display: block; }
-
     @keyframes dropIn {
-      from { opacity: 0; transform: translateY(-8px); }
+      from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
     .sug-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 14px;
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      gap: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; cursor: pointer;
+      border-bottom: 1px solid var(--border); gap: 10px;
       transition: background .1s;
     }
-    .sug-item:last-child  { border-bottom: none; }
-    .sug-item:hover,
-    .sug-item:active      { background: rgba(88,166,255,.08); }
-
-    .sug-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      flex: 1;
-      line-height: 1.4;
-    }
-    .sug-name em {
-      font-style: normal;
-      color: var(--blue);
-      background: rgba(88,166,255,.15);
-      border-radius: 4px;
-      padding: 0 2px;
-    }
+    .sug-item:last-child { border-bottom: none; }
+    .sug-item:hover, .sug-item:active { background: var(--blue-lt); }
+    .sug-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }
+    .sug-name em { font-style: normal; color: var(--blue); background: #dbeafe; border-radius: 4px; padding: 0 2px; }
     .sug-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 3px 8px;
-      flex-shrink: 0;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--muted); background: var(--bg);
+      border: 1px solid var(--border); border-radius: 5px;
+      padding: 2px 8px; flex-shrink: 0;
     }
     .sug-loading {
-      padding: 16px;
-      text-align: center;
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      padding: 14px; text-align: center; font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .spin {
       width: 14px; height: 14px;
-      border: 2px solid var(--border);
-      border-top-color: var(--blue);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: inline-block;
-      flex-shrink: 0;
+      border: 2px solid var(--border); border-top-color: var(--blue);
+      border-radius: 50%; animation: spin .7s linear infinite; display: inline-block;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ─── Action Buttons ────────────────────────────── */
+    /* ─── Buttons ────────────────────────────────────── */
     .search-btns { display: flex; gap: 8px; }
     .btn-action {
-      flex: 1;
-      height: 50px;
-      border: none;
-      border-radius: var(--r-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-      cursor: pointer;
+      flex: 1; height: 50px; border: none; border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
       transition: opacity .15s, transform .1s;
     }
-    .btn-action:active { opacity: .8; transform: scale(.98); }
-    .btn-search { background: var(--blue); }
-    .btn-cam    { background: var(--surface2); border: 1px solid var(--border); }
+    .btn-action:active { opacity: .85; transform: scale(.98); }
+    .btn-search { background: var(--blue);  color: #fff; }
+    .btn-cam    { background: var(--navy);  color: #fff; }
 
-    /* ─── Camera ────────────────────────────────────── */
-    #cameraWrap { display: none; }
+    /* ─── Camera ─────────────────────────────────────── */
+    #cameraWrap { display: none; border-radius: var(--r); overflow: hidden; box-shadow: var(--sh); border: 1px solid var(--border); }
     #cameraWrap.open { display: block; }
     #cameraContainer { width: 100%; background: #000; }
     .btn-cancel-cam {
-      width: 100%;
-      padding: 13px;
-      background: var(--surface2);
-      border: none;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s;
+      width: 100%; padding: 13px; background: #f1f5f9;
+      border: none; border-top: 1px solid var(--border);
+      color: var(--muted); font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer; transition: background .15s, color .15s;
     }
-    .btn-cancel-cam:hover { background: var(--red); color: #fff; }
+    .btn-cancel-cam:hover { background: var(--red-lt); color: var(--red); }
 
-    /* ─── Result Card ───────────────────────────────── */
-    .result-card { animation: slideUp .22s ease; }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+    /* ─── Product Info ───────────────────────────────── */
+    .prod-title { font-size: 18px; font-weight: 800; color: var(--text); line-height: 1.3; }
+    .prod-code  {
+      font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
+      margin-top: 5px; display: inline-block;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 5px; padding: 2px 8px;
     }
-
-    .res-header {
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-      padding: 16px;
-    }
-    .res-name {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.3;
-      margin-bottom: 4px;
-    }
-    .res-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
     .usage-box {
-      margin: 12px 16px;
-      background: rgba(240,180,41,.08);
-      border: 1px solid rgba(240,180,41,.25);
-      border-radius: var(--r-sm);
-      padding: 10px 12px;
-      font-size: 13px;
-      color: #d4a00a;
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      line-height: 1.5;
+      margin-top: 12px; background: var(--amber-lt);
+      border: 1px solid #fcd34d; border-radius: var(--r-sm);
+      padding: 10px 12px; font-size: 13px; color: #92400e;
+      display: flex; gap: 8px; align-items: flex-start; line-height: 1.55;
     }
+    .price-strip {
+      display: flex; align-items: center;
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px dashed var(--border);
+    }
+    .price-lbl { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .price-val {
+      font-size: 28px; font-weight: 800; color: var(--green);
+      letter-spacing: -1px; line-height: 1.1; margin-top: 3px;
+    }
+    .price-val sup { font-size: 14px; font-weight: 600; letter-spacing: 0; }
 
-    .price-section {
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
+    /* ─── Stock Table ────────────────────────────────── */
+    .stock-summary {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
     }
-    .price-label  { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
-    .price-value  { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -.5px; margin-top: 2px; }
-    .price-unit   { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .stock-lbl { font-size: 13px; color: var(--muted); font-weight: 500; }
+    .total-pill {
+      background: var(--green); color: #fff;
+      border-radius: 20px; padding: 3px 12px;
+      font-size: 13px; font-weight: 700;
+    }
+    .wh-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+    .wh-table thead th {
+      background: var(--green-lt); color: var(--green);
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px;
+      padding: 9px 12px; text-align: left;
+    }
+    .wh-table thead th:last-child { text-align: right; }
+    .wh-table tbody td {
+      padding: 11px 12px; font-size: 14px;
+      border-top: 1px solid var(--border); color: var(--text2);
+    }
+    .wh-table tbody td:last-child {
+      font-family: 'DM Mono', monospace; font-weight: 500;
+      text-align: right; color: var(--text);
+    }
+    .wh-table tbody tr:hover td { background: var(--green-lt); }
 
-    .stock-header {
-      padding: 10px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--surface2);
-      border-top: 1px solid var(--border);
-    }
-    .total-badge {
-      background: var(--accent);
-      color: #0d1117;
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .stock-table { width: 100%; border-collapse: collapse; }
-    .stock-table td {
-      padding: 11px 16px;
-      font-size: 14px;
-      border-top: 1px solid var(--border);
-    }
-    .stock-table td:first-child { color: var(--muted); }
-    .stock-table td:last-child  {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      color: var(--text);
-      text-align: right;
-    }
-    .stock-table tr:hover td { background: var(--surface2); }
-
-    /* ─── Location Section ──────────────────────────── */
-    .location-card { padding: 14px 16px; }
-    .card-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .6px;
-      margin-bottom: 10px;
-    }
-    .location-view {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .location-text {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-    }
+    /* ─── Location ───────────────────────────────────── */
+    .location-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .loc-display  { font-size: 15px; font-weight: 600; color: var(--text); flex: 1; }
+    .loc-display.empty { color: var(--muted); font-weight: 400; font-style: italic; }
     .btn-edit {
-      background: rgba(88,166,255,.12);
-      color: var(--blue);
-      border: 1px solid rgba(88,166,255,.25);
-      padding: 7px 12px;
-      border-radius: var(--r-sm);
-      font-size: 12px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .15s;
-      flex-shrink: 0;
+      padding: 7px 12px; background: var(--amber-lt);
+      color: var(--amber); border: 1px solid #fcd34d;
+      border-radius: var(--r-sm); font-size: 12px; font-weight: 700;
+      font-family: inherit; cursor: pointer; flex-shrink: 0; transition: background .15s;
     }
-    .btn-edit:hover { background: rgba(88,166,255,.2); }
-    .location-edit  { display: none; flex-direction: column; gap: 8px; margin-top: 8px; }
-    .location-edit.visible { display: flex; }
-    .location-edit-row { display: flex; gap: 8px; }
+    .btn-edit:active { background: #fef3c7; }
+    .loc-edit-wrap { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .loc-edit-wrap.open { display: flex; }
+    .loc-edit-row  { display: flex; gap: 8px; }
     .loc-input {
-      flex: 1;
-      padding: 11px 14px;
-      font-size: 14px;
-      font-family: inherit;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--text);
-      outline: none;
+      flex: 1; padding: 11px 13px; font-size: 14px; font-family: inherit;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); color: var(--text); outline: none;
       transition: border-color .2s;
     }
-    .loc-input:focus { border-color: var(--blue); }
-    .btn-save {
-      padding: 0 14px;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-sm);
-      font-size: 16px;
-      cursor: pointer;
-      transition: opacity .15s;
+    .loc-input:focus { border-color: var(--amber); }
+    .btn-loc-save {
+      padding: 0 14px; background: var(--green); color: #fff;
+      border: none; border-radius: var(--r-sm); font-size: 16px; cursor: pointer;
     }
-    .btn-cancel-edit {
-      padding: 0 14px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: var(--r-sm);
-      font-size: 16px;
-      cursor: pointer;
-      transition: background .15s;
+    .btn-loc-cancel {
+      padding: 0 14px; background: var(--bg);
+      border: 1px solid var(--border); color: var(--muted);
+      border-radius: var(--r-sm); font-size: 16px; cursor: pointer;
     }
-    .btn-save:active, .btn-cancel-edit:active { opacity: .7; }
 
-    /* ─── Movement Form ─────────────────────────────── */
-    .form-card  { padding: 16px; animation: slideUp .22s ease; }
-    .form-fields { display: flex; flex-direction: column; gap: 10px; }
+    /* ─── Movement Form ──────────────────────────────── */
+    .form-fields { display: flex; flex-direction: column; gap: 11px; }
     .field       { display: flex; flex-direction: column; gap: 5px; }
     .field label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .4px;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .6px;
     }
     .field input {
-      width: 100%;
-      padding: 13px 14px;
-      font-size: 15px;
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--text);
-      outline: none;
+      width: 100%; padding: 12px 14px; font-size: 15px;
+      font-family: 'DM Mono', monospace;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: var(--r-sm); color: var(--text); outline: none;
       transition: border-color .2s, box-shadow .2s;
     }
     .field input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(88,166,255,.1);
+      border-color: var(--violet); background: #fff;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.1);
     }
-    .field input[readonly] { color: var(--muted); background: var(--surface2); cursor: not-allowed; }
-
+    .field input[readonly] { color: var(--muted); background: #f1f5f9; cursor: not-allowed; }
     .btn-send {
-      width: 100%;
-      padding: 15px;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: inherit;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-sm);
-      cursor: pointer;
-      margin-top: 4px;
-      transition: opacity .15s, transform .1s;
+      width: 100%; padding: 15px; font-size: 15px; font-weight: 800;
+      font-family: inherit; background: var(--violet); color: #fff;
+      border: none; border-radius: var(--r-sm); cursor: pointer;
+      margin-top: 2px; transition: opacity .15s, transform .1s; letter-spacing: .3px;
     }
-    .btn-send:active  { opacity: .85; transform: scale(.99); }
-    .btn-send:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+    .btn-send:active   { opacity: .85; transform: scale(.99); }
+    .btn-send:disabled { background: var(--muted); cursor: not-allowed; }
+    .last-price-note   { text-align: center; font-size: 12px; color: var(--muted); }
+    .last-price-note strong { color: var(--violet); font-weight: 700; }
 
-    .last-price-note {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding-top: 2px;
-    }
-    .last-price-note span { color: var(--blue); font-weight: 600; }
+    /* ─── State Boxes ────────────────────────────────── */
+    .state-box     { padding: 40px 20px; text-align: center; }
+    .state-box .ico{ font-size: 42px; margin-bottom: 12px; }
+    .state-box p   { font-size: 14px; color: var(--muted); }
+    .state-box.err p{ color: var(--red); }
 
-    /* ─── State Boxes ───────────────────────────────── */
-    .state-box {
-      padding: 40px 20px;
-      text-align: center;
+    /* ─── Animation ──────────────────────────────────── */
+    .anim { animation: slideUp .24s ease both; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .state-box .ico { font-size: 42px; margin-bottom: 12px; }
-    .state-box p    { font-size: 14px; color: var(--muted); }
-    .state-box.err p { color: var(--red); }
   </style>
 </head>
 <body>
 
-  <!-- ─── Header ─────────────────────────────────────── -->
+  <!-- Header -->
   <header class="app-header">
     <div class="logo">
       <div class="logo-icon">M</div>
@@ -565,9 +411,9 @@
     <button id="installBtn" onclick="triggerInstall()">⬇ Install</button>
   </header>
 
-  <!-- ─── iOS Install Banner ──────────────────────────── -->
+  <!-- iOS Banner -->
   <div id="iosBanner">
-    <div class="ios-icon">📲</div>
+    <div style="font-size:24px;flex-shrink:0">📲</div>
     <div class="ios-text">
       <strong>Install the App</strong>
       Tap <strong>Share ↑</strong> then select <strong>"Add to Home Screen"</strong>
@@ -575,78 +421,75 @@
     <button class="ios-close" onclick="closeBanner()">✕</button>
   </div>
 
-  <!-- ─── Main Content ────────────────────────────────── -->
   <div class="scroll-area">
     <div class="inner">
 
-      <a href="showroom-needs.html" class="btn-showroom">Showroom Store</a>
+      <!-- Showroom -->
+      <a href="showroom-needs.html" class="btn-showroom">🏪 &nbsp; Go to Showroom Store</a>
 
-      <!-- Search -->
-      <div class="card search-card">
-        <div class="section-label">🔎 Search by code, barcode or name</div>
-        <div class="input-wrap">
-          <input id="searchInput" type="text" placeholder="Enter product code or name…" autocomplete="off">
-          <div id="suggestDrop"></div>
+      <!-- ① Search -->
+      <div class="section sec--search">
+        <div class="sec-head">
+          <div class="sec-icon">🔎</div>
+          Search Product
         </div>
-        <div class="search-btns">
-          <button class="btn-action btn-search" id="searchBtn">🔍 Search</button>
-          <button class="btn-action btn-cam"    id="camBtn">📷 Camera</button>
+        <div class="sec-body">
+          <div class="input-wrap">
+            <input id="searchInput" type="text" placeholder="Enter code, barcode or product name…" autocomplete="off">
+            <div id="suggestDrop"></div>
+          </div>
+          <div class="search-btns">
+            <button class="btn-action btn-search" id="searchBtn">🔍 &nbsp; Search</button>
+            <button class="btn-action btn-cam"    id="camBtn">📷 &nbsp; Camera</button>
+          </div>
         </div>
       </div>
 
       <!-- Camera -->
-      <div id="cameraWrap" class="card">
+      <div id="cameraWrap">
         <div id="cameraContainer"></div>
         <button class="btn-cancel-cam" onclick="stopCamera()">✕ &nbsp; Cancel Camera</button>
       </div>
 
-      <!-- Dynamic Result -->
+      <!-- Result -->
       <div id="result"></div>
 
     </div>
   </div>
 
   <script>
-    /* ── Service Worker ─────────────────────────────── */
+    /* ── Service Worker ────────────────────────────── */
     if ("serviceWorker" in navigator) {
-      const swCode = `
-        const V = "mawaran-v2";
-        self.addEventListener("install", () => self.skipWaiting());
-        self.addEventListener("activate", e => e.waitUntil(clients.claim()));
-        self.addEventListener("fetch", e => {
-          if (e.request.method !== "GET") return;
-          e.respondWith(
-            caches.open(V).then(c =>
-              c.match(e.request).then(r =>
-                r || fetch(e.request).then(nr => { c.put(e.request, nr.clone()); return nr; }).catch(() => r)
-              )
-            )
-          );
+      const sw = `const V="mawaran-v3";
+        self.addEventListener("install",()=>self.skipWaiting());
+        self.addEventListener("activate",e=>e.waitUntil(clients.claim()));
+        self.addEventListener("fetch",e=>{
+          if(e.request.method!=="GET")return;
+          e.respondWith(caches.open(V).then(c=>c.match(e.request).then(r=>
+            r||(fetch(e.request).then(nr=>{c.put(e.request,nr.clone());return nr}).catch(()=>r))
+          )));
         });`;
-      const blob = new Blob([swCode], { type: "application/javascript" });
-      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+      navigator.serviceWorker.register(
+        URL.createObjectURL(new Blob([sw], { type: "application/javascript" }))
+      ).catch(() => {});
     }
 
-    /* ── Constants ──────────────────────────────────── */
+    /* ── Config ────────────────────────────────────── */
     const API = "https://script.google.com/macros/s/AKfycbwDUHam_H5PKPJArZwNrJkg6_fDm73LCzIsRBhqVcDGhVzlqneoxv2O1JChbaGfeBohpg/exec";
 
-    /* ── DOM refs ───────────────────────────────────── */
+    /* ── DOM ───────────────────────────────────────── */
     const searchInput = document.getElementById("searchInput");
     const suggestDrop = document.getElementById("suggestDrop");
     const resultDiv   = document.getElementById("result");
     const cameraWrap  = document.getElementById("cameraWrap");
 
-    /* ── State ──────────────────────────────────────── */
-    let scanner       = null;
-    let isSending     = false;
-    let deferredPrompt = null;
-    let suggestTimer  = null;
-    let lastSugQuery  = "";
+    /* ── State ─────────────────────────────────────── */
+    let scanner = null, isSending = false, deferredPrompt = null;
+    let suggestTimer = null, lastSugQuery = "";
 
-    /* ── PWA Install ────────────────────────────────── */
+    /* ── PWA Install ───────────────────────────────── */
     window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault();
-      deferredPrompt = e;
+      e.preventDefault(); deferredPrompt = e;
       document.getElementById("installBtn").classList.add("show");
     });
     window.addEventListener("appinstalled", () => {
@@ -662,8 +505,8 @@
       });
     }
 
-    /* ── iOS Banner ─────────────────────────────────── */
-    const isIOS        = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    /* ── iOS Banner ────────────────────────────────── */
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const isStandalone = navigator.standalone === true
                       || window.matchMedia("(display-mode:standalone)").matches;
     if (isIOS && !isStandalone && !sessionStorage.bannerDone)
@@ -673,7 +516,7 @@
       sessionStorage.bannerDone = "1";
     }
 
-    /* ── Focus helper (prevents mobile keyboard popup on load) ── */
+    /* ── Focus without keyboard popup ─────────────── */
     function focusNoKB() {
       searchInput.setAttribute("readonly", "true");
       searchInput.focus();
@@ -681,12 +524,12 @@
     }
     window.onload = focusNoKB;
 
-    /* ── Close dropdown on outside click ───────────── */
+    /* ── Close dropdown on outside click ──────────── */
     document.addEventListener("pointerdown", e => {
       if (!suggestDrop.contains(e.target) && e.target !== searchInput) closeDrop();
     });
 
-    /* ── Highlight matched text in suggestion ───────── */
+    /* ── Highlight matched part ────────────────────── */
     function highlight(text, query) {
       const tLow = text.toLowerCase().replace(/\s+/g, "");
       const qLow = query.toLowerCase().replace(/\s+/g, "");
@@ -694,7 +537,7 @@
       if (idx < 0) return text;
       let count = 0, start = -1, end = -1;
       for (let i = 0; i < text.length; i++) {
-        if (text[i].trim() === "") continue;
+        if (!text[i].trim()) continue;
         if (count === idx) start = i;
         if (count === idx + qLow.length - 1) end = i;
         count++;
@@ -703,11 +546,11 @@
       return text.slice(0, start) + `<em>${text.slice(start, end + 1)}</em>` + text.slice(end + 1);
     }
 
-    /* ── Dropdown helpers ───────────────────────────── */
+    /* ── Dropdown ──────────────────────────────────── */
     function closeDrop() { suggestDrop.classList.remove("open"); suggestDrop.innerHTML = ""; }
     function showDrop(html) { suggestDrop.innerHTML = html; suggestDrop.classList.add("open"); }
 
-    /* ── Live suggestions ───────────────────────────── */
+    /* ── Live suggestions ──────────────────────────── */
     searchInput.addEventListener("input", () => {
       const q = searchInput.value.trim();
       if (q.length < 2) { closeDrop(); clearTimeout(suggestTimer); return; }
@@ -720,15 +563,13 @@
     async function fetchSuggestions(q) {
       lastSugQuery = q;
       try {
-        const res  = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`);
-        const data = await res.json();
+        const data = await fetch(`${API}?suggest=1&code=${encodeURIComponent(q)}`).then(r => r.json());
         if (q !== lastSugQuery) return;
         if (!data.suggestions?.length) { closeDrop(); return; }
         let html = "";
         data.suggestions.forEach(s => {
-          const hName = highlight(s.name, q);
           html += `<div class="sug-item" onpointerdown="pickSuggestion('${esc(s.code)}')">
-            <span class="sug-name">${hName}</span>
+            <span class="sug-name">${highlight(s.name, q)}</span>
             <span class="sug-code">${s.code}</span>
           </div>`;
         });
@@ -736,10 +577,10 @@
       } catch { closeDrop(); }
     }
 
-    function esc(str) { return str.replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
+    function esc(s) { return s.replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
     function pickSuggestion(code) { closeDrop(); searchInput.value = code; searchStock(code); }
 
-    /* ── Search events ──────────────────────────────── */
+    /* ── Search events ─────────────────────────────── */
     searchInput.addEventListener("keydown", e => {
       if (e.key === "Enter")  { closeDrop(); doSearch(); }
       if (e.key === "Escape") { closeDrop(); }
@@ -748,116 +589,126 @@
     document.getElementById("camBtn").onclick     = openCamera;
     function doSearch() { searchStock(searchInput.value.trim()); }
 
-    /* ── Full product search ────────────────────────── */
+    /* ── Main search ───────────────────────────────── */
     async function searchStock(code) {
       if (!code) return;
-      stopCamera();
-      lastSugQuery = "";
-
-      resultDiv.innerHTML = `<div class="card"><div class="state-box">
+      stopCamera(); lastSugQuery = "";
+      resultDiv.innerHTML = `<div class="section"><div class="state-box">
         <div class="ico">⏳</div><p>Searching…</p>
       </div></div>`;
-
       try {
-        const res  = await fetch(`${API}?code=${encodeURIComponent(code)}`);
-        const data = await res.json();
-
+        const data = await fetch(`${API}?code=${encodeURIComponent(code)}`).then(r => r.json());
         if (!data?.items?.length) {
-          resultDiv.innerHTML = `<div class="card"><div class="state-box err">
-            <div class="ico">❌</div><p>No product found for this code</p>
+          resultDiv.innerHTML = `<div class="section"><div class="state-box err">
+            <div class="ico">❌</div><p>No product found for this code.</p>
           </div></div>`;
-          resetInput();
-          return;
+          resetInput(); return;
         }
 
         let total = 0;
         data.items.forEach(i => total += Number(i.balance) || 0);
+        const bKey    = data.barcode_key || code;
+        const locVal  = data.location || "";
+        const usageHtml = data.usage
+          ? `<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>`
+          : "";
+        const stockRows = data.items.map(i => `
+          <tr><td>${i.warehouse}</td><td>${Number(i.balance)}</td></tr>`).join("");
 
-        const barcodeKey = data.barcode_key || code;
-
-        let html = `
-          <div class="card result-card">
-            <div class="res-header">
-              <div class="res-name">${data.name}</div>
-              <div class="res-code">Code: ${code.toUpperCase()}</div>
-            </div>
-            ${data.usage ? `<div class="usage-box"><span>📋</span><span>${data.usage}</span></div>` : ""}
-            <div class="price-section">
-              <div>
-                <div class="price-label">Unit Price</div>
-                <div class="price-value">${data.price_single} <span class="price-unit">$</span></div>
-              </div>
-            </div>
-            <div class="stock-header">
-              <span>Warehouses</span>
-              <span class="total-badge">📦 ${total}</span>
-            </div>
-            <table class="stock-table">
-              ${data.items.map(i => `<tr>
-                <td>${i.warehouse}</td>
-                <td>${i.balance}</td>
-              </tr>`).join("")}
-            </table>
-          </div>
-
-          <div class="card form-card">
-            <div class="card-label">📍 Product Location</div>
-            <div class="location-view" id="locationView">
-              <div class="location-text" id="locText">${data.location || '—'}</div>
-              <button class="btn-edit" onclick="editLocation()">✏ Edit</button>
-            </div>
-            <div class="location-edit" id="locationEdit">
-              <div class="location-edit-row">
-                <input class="loc-input" id="locInput" type="text" value="${data.location || ''}" placeholder="Enter location…">
-                <button class="btn-save"        onclick="saveLocation('${esc(barcodeKey)}')">✔</button>
-                <button class="btn-cancel-edit" onclick="cancelLocation()">✕</button>
+        resultDiv.innerHTML = `
+          <!-- Product Info -->
+          <div class="section sec--info anim" style="animation-delay:.02s">
+            <div class="sec-head"><div class="sec-icon">📦</div> Product Details</div>
+            <div class="sec-body">
+              <div class="prod-title">${data.name}</div>
+              <code class="prod-code">${code.toUpperCase()}</code>
+              ${usageHtml}
+              <div class="price-strip">
+                <div>
+                  <div class="price-lbl">Unit Price</div>
+                  <div class="price-val"><sup>$</sup>${data.price_single}</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="card form-card">
-            <div class="card-label">📤 Add Movement</div>
-            <div class="form-fields">
-              <div class="field">
-                <label>Product Code</label>
-                <input id="f_code" value="${data.form_code}" readonly>
+          <!-- Warehouse Stock -->
+          <div class="section sec--stock anim" style="animation-delay:.07s">
+            <div class="sec-head"><div class="sec-icon">🏭</div> Warehouse Stock</div>
+            <div class="sec-body">
+              <div class="stock-summary">
+                <span class="stock-lbl">Total available units</span>
+                <span class="total-pill">📦 ${total}</span>
               </div>
-              <div class="field">
-                <label>Quantity</label>
-                <input id="f_qty" type="number" inputmode="numeric" placeholder="0">
+              <table class="wh-table">
+                <thead><tr><th>Warehouse</th><th>Balance</th></tr></thead>
+                <tbody>${stockRows}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Product Location -->
+          <div class="section sec--location anim" style="animation-delay:.12s">
+            <div class="sec-head"><div class="sec-icon">📍</div> Product Location</div>
+            <div class="sec-body">
+              <div class="location-row">
+                <span class="loc-display${locVal ? "" : " empty"}">${locVal || "No location set"}</span>
+                <button class="btn-edit" onclick="editLocation()">✏ Edit</button>
               </div>
-              <div class="field">
-                <label>Price</label>
-                <input id="f_price" type="number" inputmode="decimal" placeholder="0.00">
+              <div class="loc-edit-wrap" id="locationEdit">
+                <div class="loc-edit-row">
+                  <input class="loc-input" id="locInput" type="text" value="${locVal}" placeholder="e.g. Shelf A3 / Rack 5">
+                  <button class="btn-loc-save"   onclick="saveLocation('${esc(bKey)}')">✔</button>
+                  <button class="btn-loc-cancel" onclick="cancelLocation()">✕</button>
+                </div>
               </div>
-              <button class="btn-send" onclick="sendForm(event)">📤 Send Movement</button>
-              <div class="last-price-note">Last Wholesale Price: <span>${data.price_wholesale} $</span></div>
+            </div>
+          </div>
+
+          <!-- Add Movement -->
+          <div class="section sec--move anim" style="animation-delay:.17s">
+            <div class="sec-head"><div class="sec-icon">📤</div> Add Movement</div>
+            <div class="sec-body">
+              <div class="form-fields">
+                <div class="field">
+                  <label>Product Code</label>
+                  <input id="f_code" value="${data.form_code}" readonly>
+                </div>
+                <div class="field">
+                  <label>Quantity</label>
+                  <input id="f_qty" type="number" inputmode="numeric" placeholder="0">
+                </div>
+                <div class="field">
+                  <label>Price</label>
+                  <input id="f_price" type="number" inputmode="decimal" placeholder="0.00">
+                </div>
+                <button class="btn-send" onclick="sendForm(event)">📤 &nbsp; Send Movement</button>
+                <div class="last-price-note">Last wholesale price: <strong>${data.price_wholesale} $</strong></div>
+              </div>
             </div>
           </div>`;
 
-        resultDiv.innerHTML = html;
         resetInput();
-
       } catch {
-        resultDiv.innerHTML = `<div class="card"><div class="state-box err">
-          <div class="ico">⚠️</div><p>Connection error — please try again</p>
+        resultDiv.innerHTML = `<div class="section"><div class="state-box err">
+          <div class="ico">⚠️</div><p>Connection error — please try again.</p>
         </div></div>`;
         resetInput();
       }
     }
 
-    /* ── Reset helpers ──────────────────────────────── */
+    /* ── Helpers ───────────────────────────────────── */
     function resetInput() { searchInput.value = ""; lastSugQuery = ""; setTimeout(focusNoKB, 40); }
-    function resetAll()   { resultDiv.innerHTML = ""; searchInput.value = ""; lastSugQuery = ""; stopCamera(); closeDrop(); setTimeout(focusNoKB, 100); }
+    function resetAll()   { resultDiv.innerHTML = ""; resetInput(); stopCamera(); closeDrop(); }
 
-    /* ── Location edit ──────────────────────────────── */
+    /* ── Location edit ─────────────────────────────── */
     function editLocation() {
-      document.getElementById("locationView").style.display = "none";
-      document.getElementById("locationEdit").classList.add("visible");
+      document.querySelector(".location-row").style.display = "none";
+      document.getElementById("locationEdit").classList.add("open");
     }
     function cancelLocation() {
-      document.getElementById("locationView").style.display = "flex";
-      document.getElementById("locationEdit").classList.remove("visible");
+      document.querySelector(".location-row").style.display = "flex";
+      document.getElementById("locationEdit").classList.remove("open");
     }
     async function saveLocation(code) {
       const input  = document.getElementById("locInput");
@@ -865,14 +716,15 @@
       if (!newVal) { alert("⚠️ Please enter a location."); return; }
       input.disabled = true;
       try {
-        const response = await fetch(API, {
+        const res = await fetch(API, {
           method:  "POST",
           headers: { "Content-Type": "text/plain" },
           body:    JSON.stringify({ action: "updateLocation", code, location: newVal })
-        });
-        const result = await response.json();
-        if (result.status === "updated") {
-          document.getElementById("locText").innerText = newVal;
+        }).then(r => r.json());
+        if (res.status === "updated") {
+          const disp = document.querySelector(".loc-display");
+          disp.textContent = newVal;
+          disp.classList.remove("empty");
           cancelLocation();
           alert("✅ Location updated successfully.");
         } else {
@@ -885,7 +737,7 @@
       }
     }
 
-    /* ── Camera ─────────────────────────────────────── */
+    /* ── Camera ────────────────────────────────────── */
     async function openCamera() {
       await stopCamera();
       cameraWrap.classList.add("open");
@@ -903,19 +755,16 @@
         }
       }
       stopCamera();
-      alert("⚠️ Could not open camera.\nPlease allow camera permission in your browser settings.");
+      alert("⚠️ Could not open camera. Please allow camera permission in your browser settings.");
     }
 
     async function stopCamera() {
       cameraWrap.classList.remove("open");
-      if (scanner) {
-        try { await scanner.stop(); } catch { }
-        scanner = null;
-      }
+      if (scanner) { try { await scanner.stop(); } catch { } scanner = null; }
       document.getElementById("cameraContainer").innerHTML = "";
     }
 
-    /* ── Send movement ──────────────────────────────── */
+    /* ── Send movement ─────────────────────────────── */
     async function sendForm(e) {
       if (isSending) return;
       const qty   = document.getElementById("f_qty")?.value;
@@ -923,9 +772,7 @@
       const code  = document.getElementById("f_code")?.value;
       const btn   = e.target;
       if (!qty || !price) { alert("⚠️ Please enter both quantity and price."); return; }
-      isSending = true;
-      btn.disabled  = true;
-      btn.innerText = "⏳ Sending…";
+      isSending = true; btn.disabled = true; btn.innerText = "⏳ Sending…";
       try {
         await fetch(API, {
           method:  "POST",

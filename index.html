@@ -719,21 +719,21 @@
       document.getElementById("locationEdit").classList.remove("open");
     }
     async function saveLocation(code) {
-  const input   = document.getElementById("locInput");
-  const saveBtn = document.querySelector(".btn-loc-save");
-  const newVal  = input.value.trim();
+  var input   = document.getElementById("locInput");
+  var saveBtn = document.querySelector(".btn-loc-save");
+  var newVal  = input.value.trim();
   if (!newVal) { alert("⚠️ Please enter a location."); return; }
-  input.disabled    = true;
+  input.disabled      = true;
   saveBtn.textContent = "⏳";
-  saveBtn.disabled  = true;
+  saveBtn.disabled    = true;
   try {
-    const res = await fetch(API, {
+    var res = await fetch(API, {
       method:  "POST",
       headers: { "Content-Type": "text/plain" },
       body:    JSON.stringify({ action: "updateLocation", code, location: newVal })
     }).then(r => r.json());
     if (res.status === "updated") {
-      const disp = document.querySelector(".loc-display");
+      var disp = document.querySelector(".loc-display");
       disp.textContent = newVal;
       disp.classList.remove("empty");
       cancelLocation();
@@ -744,9 +744,9 @@
   } catch {
     alert("❌ Connection error — please try again.");
   } finally {
-    input.disabled        = false;
-    saveBtn.textContent   = "✔";
-    saveBtn.disabled      = false;
+    input.disabled      = false;
+    saveBtn.textContent = "✔";
+    saveBtn.disabled    = false;
   }
 }
 

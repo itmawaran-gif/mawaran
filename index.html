@@ -568,15 +568,14 @@
     if (!data.suggestions?.length) { closeDrop(); return; }
     let html = "";
     data.suggestions.forEach(s => {
-      const safeName = s.name.replace(//g,">");
-      const safeCode = s.code.replace(//g,">");
-      html += `<div class="sug-item" data-code="${s.code.replace(/"/g,'"')}">
+      const safeName = s.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const safeCode = s.code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      html += `<div class="sug-item" data-code="${s.code.replace(/"/g, '&quot;')}">
         <span class="sug-name">${highlight(safeName, q)}</span>
         <span class="sug-code">${safeCode}</span>
       </div>`;
     });
     showDrop(html);
-    // ← Event delegation بدلاً من inline handler
     suggestDrop.querySelectorAll(".sug-item").forEach(el => {
       el.addEventListener("pointerdown", () => {
         pickSuggestion(el.dataset.code);

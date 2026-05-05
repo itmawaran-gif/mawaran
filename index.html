@@ -552,7 +552,7 @@ html+=`</table></div>
       border-radius:8px;
       font-size:15px;
     ">
-    <button onclick="saveLocation('${data.form_code}')" style="
+    <button onclick="saveLocation('${data.original_barcode}')" style="
       background:var(--green);
       color:#fff;
       border:none;
@@ -642,35 +642,36 @@ async function saveLocation(code){
   const newVal = input.value.trim();
 
   if(!newVal){
-    alert("⚠️ Enter location");
+    alert("⚠️ الرجاء إدخال الموقع");
     return;
   }
 
   try{
-    // ⏳ loading
     input.disabled = true;
-
-    await fetch(API, {
+    const response = await fetch(API, {
       method: "POST",
-      headers: {"Content-Type":"text/plain"},
+      headers: {"Content-Type":"text/plain"}, // ضروري لتجنب مشاكل CORS
       body: JSON.stringify({
         action: "updateLocation",
         code: code,
         location: newVal
       })
     });
-
-    // ✅ تحديث الواجهة
-    document.getElementById("locText").innerText = newVal;
-
-    document.getElementById("locationView").style.display = "flex";
-    document.getElementById("locationEdit").style.display = "none";
-
-    alert("✅ Location updated");
-
-  }catch(err){
-    alert("❌ Update failed");
-  }finally{
+    
+    const result = await response.json();
+    
+    if(result.status === "updated"){
+      document.getElementById("locText").innerText = newVal;
+      document.getElementById("locationView").style.display = "flex";
+      document.getElementById("locationEdit").style.display = "none";
+      alert("✅ تم تحديث الموقع بنجاح");
+    } else {
+      alert("❌ لم يتم العثور على المنتج في Sheet1 (Code: " + code + ")");
+    }
+  } catch(err) {
+    console.error(err);
+    alert("❌ حدث خطأ في الاتصال");
+  } finally {
     input.disabled = false;
   }
 }

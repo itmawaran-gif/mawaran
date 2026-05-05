@@ -336,7 +336,7 @@ if("serviceWorker" in navigator){
 }
 
 /* ══ MAIN ══ */
-const API = "https://script.google.com/macros/s/AKfycbwg-Lh_FpqveYzUYy86TdG4lSEc7INi0G6sH7MSdZURc2wqVlgC4xmVOLzli5zRSJhQZA/exec";
+const API = "https://script.google.com/macros/s/AKfycbw43mdx7bzTUrEKF4bpU-fhzpdSdq0wI7XuD1YiFHGmxbtevNiF839ga_mY96dw7ntakQ/exec";
 const searchInput  = document.getElementById("searchInput");
 const suggestDrop  = document.getElementById("suggestDrop");
 const resultDiv    = document.getElementById("result");
@@ -524,8 +524,54 @@ async function searchStock(code){
       html+=`<tr><td class="wh-name">${i.warehouse}</td><td>${i.balance}</td></tr>`;
     });
 
-    html+=`</table></div>
-    <div class="card form-card">
+html+=`</table></div>
+
+<div class="card" style="padding:14px 16px">
+  <div class="form-title">📍 Product Location</div>
+
+  <div id="locationView" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div id="locText" style="font-size:16px;font-weight:600;color:var(--text)">
+      ${data.location || '—'}
+    </div>
+    <button onclick="editLocation()" style="
+      background:var(--blue);
+      color:#fff;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      font-size:13px;
+      cursor:pointer;
+    ">✏️ Edit</button>
+  </div>
+
+  <div id="locationEdit" style="display:none;gap:8px;margin-top:10px">
+    <input id="locInput" value="${data.location || ''}" style="
+      flex:1;
+      padding:12px;
+      border:1.5px solid var(--border);
+      border-radius:8px;
+      font-size:15px;
+    ">
+    <button onclick="saveLocation('${data.form_code}')" style="
+      background:var(--green);
+      color:#fff;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+    ">✔</button>
+    <button onclick="cancelLocation()" style="
+      background:#64748b;
+      color:#fff;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+    ">✕</button>
+  </div>
+</div>
+
+<div class="card form-card">
       <div class="form-title">📤 Add Movement</div>
       <div class="form-fields">
         <div class="field"><label>Code</label><input id="f_code" value="${data.form_code}" readonly></div>
@@ -580,6 +626,53 @@ async function stopCamera(){
     scanner=null;
   }
   document.getElementById("cameraContainer").innerHTML="";
+}
+function editLocation(){
+  document.getElementById("locationView").style.display = "none";
+  document.getElementById("locationEdit").style.display = "flex";
+}
+
+function cancelLocation(){
+  document.getElementById("locationView").style.display = "flex";
+  document.getElementById("locationEdit").style.display = "none";
+}
+
+async function saveLocation(code){
+  const input = document.getElementById("locInput");
+  const newVal = input.value.trim();
+
+  if(!newVal){
+    alert("⚠️ Enter location");
+    return;
+  }
+
+  try{
+    // ⏳ loading
+    input.disabled = true;
+
+    await fetch(API, {
+      method: "POST",
+      headers: {"Content-Type":"text/plain"},
+      body: JSON.stringify({
+        action: "updateLocation",
+        code: code,
+        location: newVal
+      })
+    });
+
+    // ✅ تحديث الواجهة
+    document.getElementById("locText").innerText = newVal;
+
+    document.getElementById("locationView").style.display = "flex";
+    document.getElementById("locationEdit").style.display = "none";
+
+    alert("✅ Location updated");
+
+  }catch(err){
+    alert("❌ Update failed");
+  }finally{
+    input.disabled = false;
+  }
 }
 
 /* ── Send ── */
